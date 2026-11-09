@@ -5,6 +5,11 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/mis-reservas',
+      name: 'mis-reservas',
+      component: () => import('../views/usuario/MisReservas.vue'),
+    },
+    {
       path: '/',
       name: 'home',
       component: HomeView,
