@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue'
+import { guardarPerfilDemo } from '@/services/perfilDemo'
 
 // Ejemplo de presentación. El perfil real vendrá de la sesión compartida y la API.
 const perfilDemo = ref({
@@ -11,6 +12,7 @@ const perfilDemo = ref({
 const borrador = ref(null)
 const mensaje = ref('')
 const error = ref('')
+const guardando = ref(false)
 
 function editarPerfil() {
   const { nombre, apellido, correo } = perfilDemo.value
@@ -24,7 +26,9 @@ function descartarCambios() {
   error.value = ''
 }
 
-function guardarCambios() {
+async function guardarCambios() {
+  if (!borrador.value || guardando.value) return
+
   const nombre = borrador.value.nombre.trim()
   const apellido = borrador.value.apellido.trim()
   const correo = borrador.value.correo.trim()
@@ -34,10 +38,18 @@ function guardarCambios() {
     return
   }
 
-  perfilDemo.value = { ...perfilDemo.value, nombre, apellido, correo }
-  borrador.value = null
+  guardando.value = true
   error.value = ''
-  mensaje.value = 'Guardaste los cambios en esta demostración.'
+  try {
+    const datosGuardados = await guardarPerfilDemo({ nombre, apellido, correo })
+    perfilDemo.value = { ...perfilDemo.value, ...datosGuardados }
+    borrador.value = null
+    mensaje.value = 'Guardaste los cambios en esta demostración.'
+  } catch {
+    error.value = 'No pudimos guardar los cambios. Volvé a intentarlo.'
+  } finally {
+    guardando.value = false
+  }
 }
 </script>
 
@@ -78,20 +90,41 @@ function guardarCambios() {
       <h2>Editar datos personales</h2>
       <div class="campo">
         <label for="perfil-nombre">Nombre</label>
-        <input id="perfil-nombre" v-model="borrador.nombre" autocomplete="given-name" required />
+        <input
+          id="perfil-nombre"
+          v-model="borrador.nombre"
+          autocomplete="given-name"
+          :disabled="guardando"
+          required
+        />
       </div>
       <div class="campo">
         <label for="perfil-apellido">Apellido</label>
-        <input id="perfil-apellido" v-model="borrador.apellido" autocomplete="family-name" required />
+        <input
+          id="perfil-apellido"
+          v-model="borrador.apellido"
+          autocomplete="family-name"
+          :disabled="guardando"
+          required
+        />
       </div>
       <div class="campo">
         <label for="perfil-correo">Correo electrónico</label>
-        <input id="perfil-correo" v-model="borrador.correo" type="email" autocomplete="email" required />
+        <input
+          id="perfil-correo"
+          v-model="borrador.correo"
+          type="email"
+          autocomplete="email"
+          :disabled="guardando"
+          required
+        />
       </div>
       <p v-if="error" role="alert">{{ error }}</p>
       <div class="acciones">
-        <button type="button" @click="descartarCambios">Descartar</button>
-        <button type="submit">Guardar cambios</button>
+        <button type="button" :disabled="guardando" @click="descartarCambios">Descartar</button>
+        <button type="submit" :disabled="guardando">
+          {{ guardando ? 'Guardando…' : 'Guardar cambios' }}
+        </button>
       </div>
     </form>
   </section>

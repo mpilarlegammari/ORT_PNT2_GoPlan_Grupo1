@@ -1,38 +1,41 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import ReservaCard from '@/components/reservas/ReservaCard.vue'
+import { cancelarReservaDemo, consultarReservasDemo } from '@/services/reservasDemo'
+import { cancelarReserva, consultarReservas } from '@/services/reservasApi'
 import { obtenerErrorCancelacion } from '@/utils/reservas'
 
-// Datos de demostración para esta vista. No representan aún el contrato de la API.
-const reservas = ref([
-  {
-    id: 'reserva-demo-1',
-    actividad: 'Taller de cerámica',
-    fechaActividad: '2026-11-20T18:00:00-03:00',
-    ubicacion: 'Palermo, Buenos Aires',
-    fechaReserva: '2026-11-09T10:00:00-03:00',
-    estado: 'confirmada',
-  },
-  {
-    id: 'reserva-demo-2',
-    actividad: 'Fotografía urbana',
-    fechaActividad: '2026-11-21T15:00:00-03:00',
-    ubicacion: 'San Telmo, Buenos Aires',
-    fechaReserva: '2026-11-08T10:00:00-03:00',
-    estado: 'cancelada',
-  },
-])
+const reservas = ref([])
+const cargando = ref(true)
+const errorConsulta = ref(false)
+const usarApi = import.meta.env.VITE_RESERVAS_API === 'true'
+
+async function cargarReservas() {
+  cargando.value = true
+  errorConsulta.value = false
+  try {
+    reservas.value = await (usarApi ? consultarReservas() : consultarReservasDemo())
+  } catch {
+    errorConsulta.value = true
+  } finally {
+    cargando.value = false
+  }
+}
+
+onMounted(cargarReservas)
 
 const filtroEstado = ref('todas')
 const reservaSeleccionada = ref(null)
 const errorCancelacion = ref('')
 const mensajeCancelacion = ref('')
+const cancelando = ref(false)
 
 function seleccionarReserva(reservaId) {
+  if (cancelando.value) return
   mensajeCancelacion.value = ''
   const reserva = reservas.value.find((reserva) => reserva.id === reservaId)
   reservaSeleccionada.value = null
-  errorCancelacion.value = obtenerErrorCancelacion(reserva)
+  errorCancelacion.value = usarApi ? '' : obtenerErrorCancelacion(reserva)
 
   if (errorCancelacion.value) return
 
@@ -44,21 +47,25 @@ function volver() {
   errorCancelacion.value = ''
 }
 
-function confirmarCancelacion() {
-  if (!reservaSeleccionada.value) return
+async function confirmarCancelacion() {
+  if (!reservaSeleccionada.value || cancelando.value) return
 
-  const reserva = reservas.value.find((reserva) => reserva.id === reservaSeleccionada.value.id)
-  errorCancelacion.value = obtenerErrorCancelacion(reserva)
-
-  if (errorCancelacion.value) {
+  cancelando.value = true
+  errorCancelacion.value = ''
+  try {
+    const reservaCancelada = await (usarApi
+      ? cancelarReserva(reservaSeleccionada.value.id)
+      : cancelarReservaDemo(reservaSeleccionada.value))
+    reservas.value = reservas.value.map((reserva) =>
+      reserva.id === reservaCancelada.id ? reservaCancelada : reserva,
+    )
+    mensajeCancelacion.value = `Cancelaste la reserva de ${reservaCancelada.actividad}.`
+  } catch (error) {
+    errorCancelacion.value = error instanceof Error ? error.message : 'No pudimos cancelar la reserva.'
+  } finally {
     reservaSeleccionada.value = null
-    return
+    cancelando.value = false
   }
-
-  // Simulación local: la operación real deberá confirmarse primero en el backend.
-  reserva.estado = 'cancelada'
-  mensajeCancelacion.value = `Cancelaste la reserva de ${reserva.actividad} en esta demostración.`
-  reservaSeleccionada.value = null
 }
 
 const reservasFiltradas = computed(() => {
@@ -75,12 +82,12 @@ const reservasFiltradas = computed(() => {
     <header>
       <h1 id="titulo-reservas">Mis reservas</h1>
       <p>Consultá tus actividades y el historial de tus reservas.</p>
-      <p class="aviso-demo">
+      <p v-if="!usarApi" class="aviso-demo">
         Datos de ejemplo. Los cambios se reinician al recargar y no modifican cupos reales.
       </p>
     </header>
 
-    <div class="filtro-reservas">
+    <div v-if="!cargando && !errorConsulta && reservas.length" class="filtro-reservas">
       <label for="filtro-estado">Filtrar por estado</label>
       <select id="filtro-estado" v-model="filtroEstado">
         <option value="todas">Todas</option>
@@ -98,12 +105,19 @@ const reservasFiltradas = computed(() => {
       <h2 id="titulo-confirmacion">¿Cancelar la reserva de {{ reservaSeleccionada.actividad }}?</h2>
       <p>La reserva cancelada permanecerá en tu historial.</p>
       <div class="acciones-confirmacion">
-        <button type="button" @click="volver">Volver</button>
-        <button type="button" @click="confirmarCancelacion">Confirmar cancelación</button>
+        <button type="button" :disabled="cancelando" @click="volver">Volver</button>
+        <button type="button" :disabled="cancelando" @click="confirmarCancelacion">
+          {{ cancelando ? 'Cancelando…' : 'Confirmar cancelación' }}
+        </button>
       </div>
     </section>
 
-    <p v-if="reservas.length === 0">Todavía no tenés reservas.</p>
+    <p v-if="cargando" role="status">Cargando reservas…</p>
+    <div v-else-if="errorConsulta">
+      <p role="alert">No pudimos cargar tus reservas.</p>
+      <button type="button" @click="cargarReservas">Reintentar</button>
+    </div>
+    <p v-else-if="reservas.length === 0">Todavía no tenés reservas.</p>
     <p v-else-if="reservasFiltradas.length === 0">No hay reservas para este filtro.</p>
 
     <ul v-else class="lista-reservas">
