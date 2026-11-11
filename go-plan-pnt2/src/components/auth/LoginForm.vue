@@ -1,10 +1,11 @@
 <script setup>
 import PasswordField from './PasswordField.vue'
 import GoogleButton from './GoogleButton.vue'
-import { onMounted, reactive } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useAuth } from '../../composables/useAuth.js'
 import useAuthStore from '../../stores/authStore.js'
 
+const googleBusy = ref(false)
 const auth = useAuthStore()
 const { login, restoreSession, logout, loading: cargando, error } = useAuth()
 const formValues = reactive({ email: '', password: '' })
@@ -55,7 +56,7 @@ async function salir() {
     <template v-else>
       <h1 id="login-titulo">Qué bueno verte.</h1>
       <p class="descripcion">Ingresá a tu cuenta y encontrá tu próximo plan.</p>
-      <form :aria-busy="cargando" @submit.prevent="ingresar">
+      <form :inert="googleBusy" :aria-busy="cargando || googleBusy" @submit.prevent="ingresar">
         <div class="campo">
           <label for="login-email">Email</label>
           <input
@@ -82,7 +83,7 @@ async function salir() {
           {{ cargando ? 'Comprobando…' : 'Iniciar sesión' }}
         </button>
       </form>
-      <GoogleButton :disabled="cargando" />
+      <GoogleButton :disabled="cargando" @busy="googleBusy = $event" />
       <div class="registro">
         <p>¿Todavía no tenés cuenta?</p>
         <RouterLink class="registrarme" to="/registro">Registrarme</RouterLink>

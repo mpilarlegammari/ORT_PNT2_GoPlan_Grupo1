@@ -18,11 +18,10 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [vue(), vueDevTools()],
-    server: { proxy },
-    preview: { proxy },
+    server: { proxy, headers: { 'Referrer-Policy': 'no-referrer-when-downgrade' } },
+    preview: { proxy, headers: { 'Referrer-Policy': 'no-referrer-when-downgrade' } },
     resolve: {
       alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     },
   }
 })
-

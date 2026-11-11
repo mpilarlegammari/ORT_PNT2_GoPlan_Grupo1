@@ -19,3 +19,15 @@ export function signOut() {
     body: JSON.stringify({}),
   })
 }
+
+export function getGoogleConfig() {
+  return api('/auth/google/config')
+}
+
+export function signInGoogle(datos) {
+  return api('/auth/google', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(datos),
+  })
+}

@@ -48,9 +48,9 @@ export function useAuth() {
     return ejecutar(async () => {
       await signOut()
       auth.clearUser()
+      window.google?.accounts?.id.disableAutoSelect()
     })
   }
 
   return { register, login, restoreSession, logout, loading, error }
 }
-

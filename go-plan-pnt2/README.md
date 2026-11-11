@@ -95,3 +95,18 @@ El ejemplo de clase usa Axios y Supabase con tokens. Go Plan conserva fetch y su
 API propia con cookie HttpOnly; no necesita claves de Supabase, refresh tokens ni
 persistir tokens en sessionStorage. Al recargar, recupera el usuario desde `/api/auth/me`.
 
+
+## Acceso con Google
+
+El botón de `/login` y `/registro` carga Google Identity Services y muestra el botón oficial para elegir cuenta. Usa `GET /api/auth/google/config` (Client ID y nonce) y `POST /api/auth/google` (credential y, si responde 422, nombre y apellido). Actualiza el mismo store y la cookie HttpOnly que el login por credenciales. La credencial permanece en memoria y se descarta al salir del formulario o cancelar. Incluye errores y reintento; un email existente sin vincular muestra el conflicto del backend.
+
+Configurar `GOOGLE_CLIENT_ID` en el backend que recibe el proxy. En Google Cloud, autorizar el origen exacto del navegador (por ejemplo `http://localhost:5173`; agregar el puerto de preview si se usa). No se necesita Client Secret ni configurar un ID en Vue. El backend remoto debe tener desplegados los endpoints de Google.
+
+Para usar el backend local, crear `.env.local` con:
+
+```env
+API_PROXY_TARGET=http://localhost:8080
+API_PROXY_ORIGIN=http://localhost:8080
+```
+
+Reiniciar Vite. En producción, conservar el proxy `/api` y configurar `Referrer-Policy: no-referrer-when-downgrade` para pruebas HTTP en localhost (Vite ya la envía). La configuración OAuth y el acceso real se verifican con una cuenta de Google en el navegador.
