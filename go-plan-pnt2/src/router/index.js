@@ -5,9 +5,22 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/login',
-      name: 'login',
-      component: () => import('../views/LoginView.vue'),
+      path: '/acceso',
+      redirect: '/login',
+      component: () => import('../views/AccesoView.vue'),
+      meta: { acceso: true },
+      children: [
+        {
+          path: '/login',
+          name: 'login',
+          component: () => import('../components/auth/LoginForm.vue'),
+        },
+        {
+          path: '/registro',
+          name: 'registro',
+          component: () => import('../components/auth/RegistroForm.vue'),
+        },
+      ],
     },
     {
       path: '/perfil',
@@ -36,4 +49,3 @@ const router = createRouter({
 })
 
 export default router
-

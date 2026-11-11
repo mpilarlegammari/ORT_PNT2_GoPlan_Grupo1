@@ -1,3 +1,4 @@
+import { signUp } from '../services/usuarios.js'
 import { ref } from 'vue'
 import { signIn, getSession, signOut } from '../services/auth.js'
 import useAuthStore from '../stores/authStore.js'
@@ -18,6 +19,10 @@ export function useAuth() {
     } finally {
       loading.value = false
     }
+  }
+
+  function register(datos) {
+    return ejecutar(() => signUp(datos))
   }
 
   function login(email, password) {
@@ -46,5 +51,6 @@ export function useAuth() {
     })
   }
 
-  return { login, restoreSession, logout, loading, error }
+  return { register, login, restoreSession, logout, loading, error }
 }
+

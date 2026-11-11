@@ -84,8 +84,14 @@ Referencia: [EcoNatura, clase 10](https://github.com/anderson-ort/yatay_pnt_2b_2
 - `services/auth.js`: solicitudes de login, sesión y logout.
 - `stores/authStore.js`: estado de usuario, getters y acciones con Pinia, usando Options Store como en clase.
 - `composables/useAuth.js`: coordina el servicio y el store; expone loading y error.
-- `views/LoginView.vue`: formulario con reactive, v-model y @submit.prevent.
+- `views/AccesoView.vue`: página compartida con panel de presentación, contenedor y pie. Su RouterView muestra el formulario de la ruta hija.
+- `components/auth/LoginForm.vue` y `RegistroForm.vue`: formularios con reactive, v-model y @submit.prevent.
+- `components/auth/PasswordField.vue` y `GoogleButton.vue`: controles reutilizables.
+- `assets/auth.css`: estilos compartidos, limitados a la página de acceso.
+
+Las rutas /login y /registro usan la misma página; /acceso redirige al login.
 
 El ejemplo de clase usa Axios y Supabase con tokens. Go Plan conserva fetch y su
 API propia con cookie HttpOnly; no necesita claves de Supabase, refresh tokens ni
 persistir tokens en sessionStorage. Al recargar, recupera el usuario desde `/api/auth/me`.
+
