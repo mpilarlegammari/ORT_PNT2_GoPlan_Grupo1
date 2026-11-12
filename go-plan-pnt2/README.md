@@ -21,6 +21,15 @@ See [Vite Configuration Reference](https://vite.dev/config/).
 
 ## Project Setup
 
+La vista `/perfil` usa `GET /api/auth/me` para consultar la sesión y
+`PATCH /api/usuarios/me` para guardar los cambios. Ambas solicitudes usan
+la cookie de sesión del mismo origen.
+
+En desarrollo, Vite reenvía `/api` al backend local en el puerto 8080.
+Configurá `APP_ORIGIN` en el backend con el origen exacto que abras en Vite
+(por ejemplo, `http://localhost:5173`) para permitir las escrituras. En producción,
+el servidor que publique Vue debe servir o reenviar `/api` bajo el mismo origen.
+
 ```sh
 npm install
 ```

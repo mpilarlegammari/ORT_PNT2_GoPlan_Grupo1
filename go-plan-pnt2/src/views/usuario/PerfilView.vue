@@ -1,21 +1,31 @@
 <script setup>
-import { ref } from 'vue'
-import { guardarPerfilDemo } from '@/services/perfilDemo'
+import { onMounted, ref } from 'vue'
+import { consultarPerfil, guardarPerfil } from '@/services/perfilApi'
 
-// Ejemplo de presentación. El perfil real vendrá de la sesión compartida y la API.
-const perfilDemo = ref({
-  nombre: 'Alex',
-  apellido: 'Ejemplo',
-  correo: 'alex@example.com',
-  rol: 'Usuario',
-})
+const perfil = ref(null)
+const cargando = ref(true)
+const errorConsulta = ref('')
 const borrador = ref(null)
 const mensaje = ref('')
 const error = ref('')
 const guardando = ref(false)
 
+async function cargarPerfil() {
+  cargando.value = true
+  errorConsulta.value = ''
+  try {
+    perfil.value = await consultarPerfil()
+  } catch (error) {
+    errorConsulta.value = error.message || 'No pudimos consultar tu perfil.'
+  } finally {
+    cargando.value = false
+  }
+}
+
+onMounted(cargarPerfil)
+
 function editarPerfil() {
-  const { nombre, apellido, correo } = perfilDemo.value
+  const { nombre, apellido, correo } = perfil.value
   borrador.value = { nombre, apellido, correo }
   mensaje.value = ''
   error.value = ''
@@ -41,12 +51,11 @@ async function guardarCambios() {
   guardando.value = true
   error.value = ''
   try {
-    const datosGuardados = await guardarPerfilDemo({ nombre, apellido, correo })
-    perfilDemo.value = { ...perfilDemo.value, ...datosGuardados }
+    perfil.value = await guardarPerfil({ nombre, apellido, correo })
     borrador.value = null
-    mensaje.value = 'Guardaste los cambios en esta demostración.'
-  } catch {
-    error.value = 'No pudimos guardar los cambios. Volvé a intentarlo.'
+    mensaje.value = 'Guardaste los cambios de tu perfil.'
+  } catch (fallo) {
+    error.value = fallo.message || 'No pudimos guardar los cambios. Volvé a intentarlo.'
   } finally {
     guardando.value = false
   }
@@ -58,35 +67,38 @@ async function guardarCambios() {
     <header>
       <h1 id="titulo-perfil">Mi perfil</h1>
       <p>Consultá tus datos personales.</p>
-      <p class="aviso-demo">
-        Perfil ficticio de demostración. Los cambios se reinician al recargar.
-      </p>
     </header>
 
-    <dl class="datos-perfil">
+    <p v-if="cargando" role="status">Cargando perfil…</p>
+    <div v-else-if="errorConsulta">
+      <p role="alert">{{ errorConsulta }}</p>
+      <button type="button" @click="cargarPerfil">Reintentar</button>
+    </div>
+
+    <dl v-else class="datos-perfil">
       <div>
         <dt>Nombre</dt>
-        <dd>{{ perfilDemo.nombre }}</dd>
+        <dd>{{ perfil.nombre }}</dd>
       </div>
       <div>
         <dt>Apellido</dt>
-        <dd>{{ perfilDemo.apellido }}</dd>
+        <dd>{{ perfil.apellido || 'Sin apellido registrado' }}</dd>
       </div>
       <div>
         <dt>Correo electrónico</dt>
-        <dd>{{ perfilDemo.correo }}</dd>
+        <dd>{{ perfil.correo }}</dd>
       </div>
       <div>
         <dt>Rol</dt>
-        <dd>{{ perfilDemo.rol }}</dd>
+        <dd>{{ perfil.rol }}</dd>
       </div>
     </dl>
 
     <div role="status"><p v-if="mensaje">{{ mensaje }}</p></div>
 
-    <button v-if="!borrador" type="button" @click="editarPerfil">Editar perfil</button>
+    <button v-if="perfil && !borrador" type="button" @click="editarPerfil">Editar perfil</button>
 
-    <form v-else class="formulario-perfil" @submit.prevent="guardarCambios">
+    <form v-else-if="borrador" class="formulario-perfil" @submit.prevent="guardarCambios">
       <h2>Editar datos personales</h2>
       <div class="campo">
         <label for="perfil-nombre">Nombre</label>
@@ -183,11 +195,6 @@ button {
   justify-self: start;
   cursor: pointer;
   background: var(--color-background-soft);
-}
-
-.aviso-demo {
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
 }
 
 .datos-perfil {
