@@ -13,6 +13,9 @@ const props = defineProps({
 const store = useActividadesStore()
 
 const esFav = computed(() => store.esFavorito(props.actividad.id))
+const cuposDisponibles = computed(() =>
+  Math.max(0, props.actividad.cupo - (props.actividad.cuposReservados ?? 0)),
+)
 
 const formatoFecha = new Intl.DateTimeFormat('es-AR', {
   dateStyle: 'medium',
@@ -106,7 +109,10 @@ function toggleFav(e) {
         <div class="precio-cupo">
           <span class="precio-label">Precio</span>
           <span class="precio-valor">{{ formatearPrecio(actividad.precio) }}</span>
-          <span class="cupo-disponible">{{ actividad.cupo }} lugares disp.</span>
+          <span v-if="cuposDisponibles > 0" class="cupo-disponible">
+            {{ cuposDisponibles }} lugares disp.
+          </span>
+          <span v-else class="cupo-disponible sin-cupos">Sin cupos</span>
         </div>
 
         <RouterLink
@@ -318,4 +324,3 @@ function toggleFav(e) {
   background: #1d4ed8;
 }
 </style>
-
