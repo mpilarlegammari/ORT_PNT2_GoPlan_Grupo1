@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,6 +23,24 @@ const router = createRouter({
       path: '/favoritos',
       name: 'favoritos',
       component: () => import('../views/actividades/FavoritosView.vue'),
+    },
+    {
+      path: '/acceso',
+      redirect: '/login',
+      component: () => import('../views/AccesoView.vue'),
+      meta: { acceso: true },
+      children: [
+        {
+          path: '/login',
+          name: 'login',
+          component: () => import('../components/auth/LoginForm.vue'),
+        },
+        {
+          path: '/registro',
+          name: 'registro',
+          component: () => import('../components/auth/RegistroForm.vue'),
+        },
+      ],
     },
     {
       path: '/perfil',

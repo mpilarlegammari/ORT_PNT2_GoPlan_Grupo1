@@ -1,15 +1,21 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
 import { computed } from 'vue'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useActividadesStore } from '@/stores/actividades'
+import { useAuthStore } from '@/stores/authStore'
 
-const store = useActividadesStore()
-const cantidadFavoritos = computed(() => store.favoritosIds.length)
+const route = useRoute()
+const actividadesStore = useActividadesStore()
+const authStore = useAuthStore()
+
+const cantidadFavoritos = computed(() => actividadesStore.favoritosIds.length)
+const usuario = computed(() => authStore.usuario)
 </script>
 
 <template>
   <div class="app-layout">
-    <header class="app-header">
+    <!-- Oculta cabecera en vistas de login/registro -->
+    <header v-if="!route.meta.acceso" class="app-header">
       <div class="header-contenedor">
         <RouterLink to="/" class="logo-link">
           <span class="logo-marca">GoPlan</span>
@@ -24,15 +30,23 @@ const cantidadFavoritos = computed(() => store.favoritosIds.length)
           </RouterLink>
           <RouterLink to="/mis-reservas">Mis reservas</RouterLink>
           <RouterLink to="/perfil">Mi perfil</RouterLink>
+
+          <!-- Acceso / Cuenta según estado de sesión -->
+          <RouterLink v-if="!usuario" to="/login" class="link-acceso">
+            Iniciar sesión
+          </RouterLink>
+          <span v-else class="usuario-logueado">
+            Hola, {{ usuario.nombre || usuario.email }}
+          </span>
         </nav>
       </div>
     </header>
 
-    <div class="app-contenido">
+    <main class="app-contenido" :class="{ 'pagina-completa': route.meta.acceso }">
       <RouterView />
-    </div>
+    </main>
 
-    <footer class="app-footer">
+    <footer v-if="!route.meta.acceso" class="app-footer">
       <p>© 2026 GoPlan — Trabajo Práctico Integrador PNT2 (Grupo 1)</p>
     </footer>
   </div>
@@ -108,6 +122,25 @@ const cantidadFavoritos = computed(() => store.favoritosIds.length)
   font-weight: 600;
 }
 
+.link-acceso {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.link-acceso:hover {
+  background: #1d4ed8 !important;
+}
+
+.usuario-logueado {
+  font-size: 0.9rem;
+  color: #0f172a;
+  font-weight: 600;
+  padding: 0.5rem 0.75rem;
+  background: #f1f5f9;
+  border-radius: 8px;
+}
+
 .badge-fav {
   background: #ef4444;
   color: #ffffff;
@@ -120,6 +153,11 @@ const cantidadFavoritos = computed(() => store.favoritosIds.length)
 
 .app-contenido {
   flex-grow: 1;
+}
+
+.pagina-completa {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
 }
 
 .app-footer {
