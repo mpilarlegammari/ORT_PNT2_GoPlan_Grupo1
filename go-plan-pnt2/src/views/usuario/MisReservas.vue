@@ -2,13 +2,28 @@
 import { computed, onMounted, ref } from 'vue'
 import ReservaCard from '@/components/reservas/ReservaCard.vue'
 import { cancelarReservaDemo, consultarReservasDemo } from '@/services/reservasDemo'
-import { cancelarReserva, consultarReservas } from '@/services/reservasApi'
+import { cancelarReserva, consultarReservas, descargarComprobante } from '@/services/reservasApi'
 import { obtenerErrorCancelacion } from '@/utils/reservas'
 
 const reservas = ref([])
 const cargando = ref(true)
 const errorConsulta = ref(false)
 const usarApi = import.meta.env.VITE_RESERVAS_API === 'true'
+const descargandoId = ref(null)
+const errorDescarga = ref('')
+
+async function descargarPdf(id) {
+  if (descargandoId.value) return
+  descargandoId.value = id
+  errorDescarga.value = ''
+  try {
+    await descargarComprobante(id)
+  } catch (error) {
+    errorDescarga.value = error.message
+  } finally {
+    descargandoId.value = null
+  }
+}
 
 async function cargarReservas() {
   cargando.value = true
@@ -100,6 +115,7 @@ const reservasFiltradas = computed(() => {
       <p v-if="errorCancelacion">{{ errorCancelacion }}</p>
       <p v-else-if="mensajeCancelacion">{{ mensajeCancelacion }}</p>
     </div>
+    <p v-if="errorDescarga" role="alert">{{ errorDescarga }}</p>
 
     <section v-if="reservaSeleccionada" class="confirmacion" aria-labelledby="titulo-confirmacion">
       <h2 id="titulo-confirmacion">¿Cancelar la reserva de {{ reservaSeleccionada.actividad }}?</h2>
@@ -122,7 +138,13 @@ const reservasFiltradas = computed(() => {
 
     <ul v-else class="lista-reservas">
       <li v-for="reserva in reservasFiltradas" :key="reserva.id">
-        <ReservaCard :reserva="reserva" @solicitar-cancelacion="seleccionarReserva" />
+        <ReservaCard :reserva="reserva" @solicitar-cancelacion="seleccionarReserva">
+          <template v-if="usarApi" #acciones>
+            <button class="comprobante" type="button" :disabled="!!descargandoId" @click="descargarPdf(reserva.id)">
+              {{ descargandoId === reserva.id ? 'Descargando…' : 'Descargar comprobante PDF' }}
+            </button>
+          </template>
+        </ReservaCard>
       </li>
     </ul>
   </section>
@@ -171,6 +193,11 @@ button {
 .aviso-demo {
   margin-top: 0.5rem;
   font-size: 0.9rem;
+}
+
+.comprobante {
+  display: block;
+  margin-top: 0.75rem;
 }
 
 .lista-reservas {

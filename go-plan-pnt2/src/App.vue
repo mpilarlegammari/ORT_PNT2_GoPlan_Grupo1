@@ -8,6 +8,7 @@ const route = useRoute()
     <RouterLink class="marca" to="/">GO PLAN</RouterLink>
     <nav aria-label="Navegación principal">
       <RouterLink to="/">Inicio</RouterLink>
+      <RouterLink to="/actividades">Actividades</RouterLink>
       <RouterLink to="/login">Mi cuenta</RouterLink>
     </nav>
   </header>
