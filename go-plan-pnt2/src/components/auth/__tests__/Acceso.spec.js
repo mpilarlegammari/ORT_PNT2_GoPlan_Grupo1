@@ -22,8 +22,9 @@ it('cambia de formulario dentro de la misma página y permite registrar la cuent
     })),
   )
   const router = createRouter({ history: createMemoryHistory(), routes: appRouter.options.routes })
-  await router.push('/login')
+  await router.push('/')
   await router.isReady()
+  expect(router.currentRoute.value.path).toBe('/login')
   wrapper = mount(App, { global: { plugins: [createPinia(), router] } })
   await flushPromises()
   const panel = wrapper.get('.presentacion').element
@@ -58,8 +59,128 @@ it('cambia de formulario dentro de la misma página y permite registrar la cuent
     '/api/usuarios',
     expect.objectContaining({ method: 'POST' }),
   )
-  await router.push('/')
+  await router.push('/actividades')
   await flushPromises()
   expect(wrapper.find('.auth-page').exists()).toBe(false)
   expect(wrapper.find('.cabecera').exists()).toBe(true)
+})
+
+it('lleva a actividades solo cuando el login es correcto', async () => {
+  const fetchMock = vi.fn(async (url) => ({
+    ok: url === '/api/auth/login',
+    status: url === '/api/auth/login' ? 200 : 401,
+    json: async () =>
+      url === '/api/auth/login'
+        ? { usuario: { nombre: 'Ana', email: 'ana@example.com', rol: 'usuario' } }
+        : { error: 'Sin sesión' },
+  }))
+  vi.stubGlobal('fetch', fetchMock)
+  const router = createRouter({ history: createMemoryHistory(), routes: appRouter.options.routes })
+  await router.push('/login')
+  await router.isReady()
+  wrapper = mount(App, { global: { plugins: [createPinia(), router] } })
+  await flushPromises()
+  await wrapper.get('#login-email').setValue('ana@example.com')
+  await wrapper.get('#login-password').setValue('clave123')
+  fetchMock.mockResolvedValueOnce({
+    ok: false,
+    status: 401,
+    json: async () => ({ error: 'Credenciales incorrectas' }),
+  })
+  await wrapper.get('form').trigger('submit')
+  await flushPromises()
+  expect(router.currentRoute.value.path).toBe('/login')
+  expect(wrapper.get('[role="alert"]').text()).toContain('Credenciales incorrectas')
+  const navegacion = new Promise((resolve) => {
+    const detener = router.afterEach(() => {
+      detener()
+      resolve()
+    })
+  })
+  await wrapper.get('form').trigger('submit')
+  await navegacion
+  await flushPromises()
+  expect(router.currentRoute.value.path).toBe('/actividades')
+  expect(wrapper.find('.auth-page').exists()).toBe(false)
+})
+
+it('redirige al home cuando se abre login con una sesión vigente y el logo conserva ese destino', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (url) => ({
+      ok: true,
+      status: 200,
+      json: async () =>
+        url === '/api/auth/me'
+          ? { usuario: { nombre: 'Ana', email: 'ana@example.com', rol: 'usuario' } }
+          : [],
+    })),
+  )
+  const router = createRouter({ history: createMemoryHistory(), routes: appRouter.options.routes })
+  await router.push('/login')
+  await router.isReady()
+  const navegacion = new Promise((resolve) => {
+    const detener = router.afterEach(() => {
+      detener()
+      resolve()
+    })
+  })
+  wrapper = mount(App, { global: { plugins: [createPinia(), router] } })
+  expect(wrapper.text()).not.toContain('Ya iniciaste sesión')
+  await navegacion
+  await flushPromises()
+  expect(router.currentRoute.value.path).toBe('/actividades')
+  expect(wrapper.find('.auth-page').exists()).toBe(false)
+  expect(wrapper.get('.logo-link').attributes('href')).toBe('/actividades')
+  await wrapper.get('.logo-link').trigger('click')
+  await flushPromises()
+  expect(router.currentRoute.value.path).toBe('/actividades')
+})
+
+it('permite reintentar un logout fallido y vuelve al login al cerrar la sesión', async () => {
+  const pinia = createPinia()
+  const { default: useAuthStore } = await import('../../../stores/authStore.js')
+  const auth = useAuthStore(pinia)
+  auth.setUser({ nombre: 'Ana', email: 'ana@example.com', rol: 'usuario' })
+  let logoutFalla = true
+  const fetchMock = vi.fn(async (url) => {
+    if (url === '/api/auth/logout') {
+      return {
+        ok: !logoutFalla,
+        status: logoutFalla ? 500 : 204,
+        json: async () => ({ error: 'No se pudo cerrar sesión' }),
+      }
+    }
+    if (url === '/api/auth/me')
+      return { ok: false, status: 401, json: async () => ({ error: 'Sin sesión' }) }
+    return { ok: true, status: 200, json: async () => [] }
+  })
+  vi.stubGlobal('fetch', fetchMock)
+  const router = createRouter({ history: createMemoryHistory(), routes: appRouter.options.routes })
+  await router.push('/actividades')
+  await router.isReady()
+  wrapper = mount(App, { global: { plugins: [pinia, router] } })
+  await flushPromises()
+  await wrapper.get('.boton-salir').trigger('click')
+  await flushPromises()
+  expect(auth.isAuthenticated).toBe(true)
+  expect(wrapper.get('[role="alert"]').text()).toContain('No se pudo cerrar sesión')
+  logoutFalla = false
+  const navegacion = new Promise((resolve) => {
+    const detener = router.afterEach(() => {
+      detener()
+      resolve()
+    })
+  })
+  await wrapper.get('.boton-salir').trigger('click')
+  await navegacion
+  await flushPromises()
+  expect(auth.isAuthenticated).toBe(false)
+  expect(router.currentRoute.value.path).toBe('/login')
+  expect(wrapper.find('.boton-salir').exists()).toBe(false)
+  expect(wrapper.find('#login-email').exists()).toBe(true)
+  expect(fetchMock).toHaveBeenCalledWith(
+    '/api/auth/logout',
+    expect.objectContaining({ method: 'POST' }),
+  )
 })

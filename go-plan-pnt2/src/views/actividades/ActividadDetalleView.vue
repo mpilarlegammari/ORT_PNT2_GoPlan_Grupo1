@@ -1,12 +1,32 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { obtenerActividadPorIdAPI } from '@/services/actividades'
 import { useRoute, RouterLink } from 'vue-router'
 import { useActividadesStore } from '@/stores/actividades'
 
 const route = useRoute()
 const store = useActividadesStore()
 
-const actividad = computed(() => store.obtenerActividadPorId(route.params.id))
+const actividad = ref(null)
+const cargando = ref(false)
+const error = ref('')
+let solicitud = 0
+
+async function cargarActividad(id) {
+  const actual = ++solicitud
+  cargando.value = true
+  error.value = ''
+  actividad.value = null
+  try {
+    const datos = await obtenerActividadPorIdAPI(id)
+    if (actual === solicitud) actividad.value = datos
+  } catch (err) {
+    if (actual === solicitud) error.value = err.message
+  } finally {
+    if (actual === solicitud) cargando.value = false
+  }
+}
+watch(() => route.params.id, cargarActividad, { immediate: true })
 const esFav = computed(() => (actividad.value ? store.esFavorito(actividad.value.id) : false))
 </script>
 
@@ -16,10 +36,20 @@ const esFav = computed(() => (actividad.value ? store.esFavorito(actividad.value
       <RouterLink to="/actividades">← Volver al catálogo</RouterLink>
     </nav>
 
-    <div v-if="actividad" class="detalle-contenido">
+    <p v-if="cargando" role="status">Cargando actividad…</p>
+    <div v-else-if="error" role="alert">
+      <p>{{ error }}</p>
+      <button type="button" @click="cargarActividad(route.params.id)">Reintentar</button>
+    </div>
+    <div v-else-if="actividad" class="detalle-contenido">
       <h1>{{ actividad.nombre }}</h1>
       <p class="categoria-tag">{{ actividad.categoria }}</p>
-      <img :src="actividad.imagen" :alt="actividad.nombre" class="detalle-img" />
+      <img
+        v-if="actividad.imagen"
+        :src="actividad.imagen"
+        :alt="actividad.nombre"
+        class="detalle-img"
+      />
       <p class="descripcion">{{ actividad.descripcion }}</p>
       <div class="info-extra">
         <p><strong>Ubicación:</strong> {{ actividad.direccion }}, {{ actividad.ciudad }}</p>

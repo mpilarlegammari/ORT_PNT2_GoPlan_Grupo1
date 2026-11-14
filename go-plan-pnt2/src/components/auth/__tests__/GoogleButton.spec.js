@@ -36,7 +36,7 @@ async function abrir() {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
-      { path: '/login', component: { template: '<div />' } },
+      { path: '/actividades', component: { template: '<div />' } },
       { path: '/registro', component: { template: '<div />' } },
     ],
   })
@@ -60,7 +60,7 @@ it('envía nonce al SDK e inicia sesión en el store compartido desde registro',
   await flushPromises()
   expect(signInGoogle).toHaveBeenCalledWith({ credential: 'id-token' })
   expect(auth.usuario.nombre).toBe('Ana')
-  expect(router.currentRoute.value.path).toBe('/login')
+  expect(router.currentRoute.value.path).toBe('/actividades')
 })
 it('completa el perfil requerido sin perder la credencial', async () => {
   signInGoogle.mockRejectedValueOnce(
@@ -94,4 +94,3 @@ it('muestra errores y descarta callbacks cancelados por login con contraseña', 
   expect(wrapper.get('[role="alert"]').text()).toBe('Google sin configurar')
   expect(wrapper.get('button').text()).toContain('Continuar con Google')
 })
-

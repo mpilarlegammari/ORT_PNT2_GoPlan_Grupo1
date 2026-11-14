@@ -49,7 +49,7 @@ async function ingresar(datos, actual = version) {
     if (actual !== version) return
     auth.setUser(respuesta.usuario)
     cancelar()
-    if (router.currentRoute.value.path !== '/login') await router.push('/login')
+    await router.replace('/actividades')
   } catch (err) {
     if (actual !== version) return
     error.value = err.message

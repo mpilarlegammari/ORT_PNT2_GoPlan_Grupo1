@@ -8,7 +8,7 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: () => import('../views/actividades/ActividadesView.vue'),
+      redirect: '/login',
     },
     {
       path: '/actividades',
@@ -94,3 +94,4 @@ router.beforeEach(async (to) => {
   return true
 })
 export default router
+
