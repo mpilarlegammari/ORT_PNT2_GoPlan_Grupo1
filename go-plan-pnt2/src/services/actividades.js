@@ -29,3 +29,12 @@ export async function obtenerActividadPorIdAPI(id) {
   if (!datos?._id && !datos?.id) return null
   return adaptarActividad(datos)
 }
+
+export async function actualizarActividadAPI(id, cambios) {
+  const datos = await api(`/actividades/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(cambios),
+  })
+  return adaptarActividad(datos)
+}

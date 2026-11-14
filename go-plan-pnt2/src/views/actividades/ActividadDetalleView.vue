@@ -1,4 +1,5 @@
 <script setup>
+import EditarActividadButton from '@/components/actividades/EditarActividadButton.vue'
 import { computed, ref, watch } from 'vue'
 import { obtenerActividadPorIdAPI } from '@/services/actividades'
 import { useRoute, RouterLink } from 'vue-router'
@@ -43,6 +44,7 @@ const esFav = computed(() => (actividad.value ? store.esFavorito(actividad.value
     </div>
     <div v-else-if="actividad" class="detalle-contenido">
       <h1>{{ actividad.nombre }}</h1>
+      <EditarActividadButton :id="actividad.id" />
       <p class="categoria-tag">{{ actividad.categoria }}</p>
       <img
         v-if="actividad.imagen"

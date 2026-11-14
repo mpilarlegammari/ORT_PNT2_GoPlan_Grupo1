@@ -1,4 +1,5 @@
 <script setup>
+import EditarActividadButton from '@/components/actividades/EditarActividadButton.vue'
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useActividadesStore } from '@/stores/actividades'
@@ -71,6 +72,7 @@ function toggleFav() {
           </div>
 
           <div class="banner-botones">
+            <EditarActividadButton :id="destacada.id" />
             <button
               type="button"
               class="btn-fav-banner"
@@ -289,7 +291,9 @@ function toggleFav() {
   border-radius: 8px;
   text-decoration: none;
   font-size: 0.95rem;
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
 }
 
 .btn-ver-destacada:hover {
@@ -297,4 +301,3 @@ function toggleFav() {
   transform: translateY(-2px);
 }
 </style>
-

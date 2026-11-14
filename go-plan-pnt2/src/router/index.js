@@ -1,10 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import useAuthStore from '../stores/authStore.js'
-import { useAuth } from '../composables/useAuth.js'
+import { validarAcceso } from './guards.js'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/admin/actividades/:id/editar',
+      name: 'actividad-editar',
+      component: () => import('../views/admin/ActividadFormView.vue'),
+      meta: { requiresAdmin: true },
+    },
     {
       path: '/',
       name: 'home',
@@ -67,31 +72,5 @@ const router = createRouter({
     },
   ],
 })
-router.beforeEach(async (to) => {
-  if (!to.meta.requiresAdmin) {
-    return true
-  }
-
-  const auth = useAuthStore()
-  const { restoreSession } = useAuth()
-
-  if (!auth.usuario) {
-    try {
-      await restoreSession()
-    } catch {
-      return '/login'
-    }
-  }
-
-  if (!auth.isAuthenticated) {
-    return '/login'
-  }
-
-  if (!auth.isAdmin) {
-    return '/'
-  }
-
-  return true
-})
+router.beforeEach(validarAcceso)
 export default router
-
