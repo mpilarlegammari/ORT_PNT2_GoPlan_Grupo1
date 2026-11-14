@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useActividadesStore } from '@/stores/actividades'
-import { useAuthStore } from '@/stores/authStore'
+import useAuthStore from '@/stores/authStore'
 
 const route = useRoute()
 const actividadesStore = useActividadesStore()
@@ -15,7 +15,7 @@ const usuario = computed(() => authStore.usuario)
 <template>
   <div class="app-layout">
     <!-- Oculta cabecera en vistas de login/registro -->
-    <header v-if="!route.meta.acceso" class="app-header">
+    <header v-if="!route.meta.acceso" class="app-header cabecera">
       <div class="header-contenedor">
         <RouterLink to="/" class="logo-link">
           <span class="logo-marca">GoPlan</span>

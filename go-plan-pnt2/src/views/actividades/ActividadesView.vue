@@ -1,11 +1,15 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useActividadesStore } from '@/stores/actividades'
 import ActividadCard from '@/components/actividades/ActividadCard.vue'
 import ActividadFiltros from '@/components/actividades/ActividadFiltros.vue'
 import ActividadDestacada from '@/components/actividades/ActividadDestacada.vue'
 
 const store = useActividadesStore()
+
+onMounted(() => {
+  store.cargarActividades()
+})
 
 const actividades = computed(() => store.actividadesFiltradas)
 // El banner destacado solo se muestra si no hay filtros aplicados

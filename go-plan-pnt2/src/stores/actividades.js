@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { ACTIVIDADES_INICIALES } from '@/data/actividadesIniciales'
 import { leerStorage, escribirStorage } from '@/utils/storage'
+import { obtenerActividadesAPI } from '@/services/actividades'
 
 const STORAGE_KEY_ACTIVIDADES = 'goplan_actividades'
 const STORAGE_KEY_FAVORITOS = 'goplan_favoritos'
@@ -10,6 +11,7 @@ export const useActividadesStore = defineStore('actividades', () => {
   // Estado base
   const actividades = ref(leerStorage(STORAGE_KEY_ACTIVIDADES, ACTIVIDADES_INICIALES))
   const favoritosIds = ref(leerStorage(STORAGE_KEY_FAVORITOS, []))
+  const cargando = ref(false)
 
   // Filtros
   const busquedaTexto = ref('')
@@ -56,6 +58,20 @@ export const useActividadesStore = defineStore('actividades', () => {
   const listaFavoritos = computed(() => {
     return actividades.value.filter((act) => favoritosIds.value.includes(act.id))
   })
+
+  // Acciones - Backend / API
+  async function cargarActividades() {
+    cargando.value = true
+    try {
+      const datos = await obtenerActividadesAPI()
+      if (datos && datos.length > 0) {
+        actividades.value = datos
+        escribirStorage(STORAGE_KEY_ACTIVIDADES, datos)
+      }
+    } finally {
+      cargando.value = false
+    }
+  }
 
   // Acciones - Favoritos
   function esFavorito(id) {
@@ -115,6 +131,7 @@ export const useActividadesStore = defineStore('actividades', () => {
   return {
     actividades,
     favoritosIds,
+    cargando,
     busquedaTexto,
     categoriaSeleccionada,
     categorias,
@@ -122,6 +139,7 @@ export const useActividadesStore = defineStore('actividades', () => {
     actividadesDestacadas,
     actividadesFiltradas,
     listaFavoritos,
+    cargarActividades,
     esFavorito,
     toggleFavorito,
     setBusqueda,
