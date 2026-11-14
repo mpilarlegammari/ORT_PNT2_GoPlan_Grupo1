@@ -5,6 +5,24 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/acceso',
+      redirect: '/login',
+      component: () => import('../views/AccesoView.vue'),
+      meta: { acceso: true },
+      children: [
+        {
+          path: '/login',
+          name: 'login',
+          component: () => import('../components/auth/LoginForm.vue'),
+        },
+        {
+          path: '/registro',
+          name: 'registro',
+          component: () => import('../components/auth/RegistroForm.vue'),
+        },
+      ],
+    },
+    {
       path: '/perfil',
       name: 'perfil',
       component: () => import('../views/usuario/PerfilView.vue'),

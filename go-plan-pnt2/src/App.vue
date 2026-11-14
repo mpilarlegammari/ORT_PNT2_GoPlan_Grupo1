@@ -1,85 +1,45 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { RouterLink, RouterView, useRoute } from 'vue-router'
+const route = useRoute()
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
+  <header v-if="!route.meta.acceso" class="cabecera">
+    <RouterLink class="marca" to="/">GO PLAN</RouterLink>
+    <nav aria-label="Navegación principal">
+      <RouterLink to="/">Inicio</RouterLink>
+      <RouterLink to="/login">Mi cuenta</RouterLink>
+    </nav>
   </header>
-
-  <RouterView />
+  <main :class="{ 'pagina-completa': route.meta.acceso }"><RouterView /></main>
 </template>
 
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.pagina-completa {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
 }
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+:global(#app:has(.pagina-completa)) {
+  padding-bottom: 0;
 }
-
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.marca {
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
 nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
 }
-
 nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+  text-decoration: underline;
+  text-underline-offset: 5px;
 }
 </style>
