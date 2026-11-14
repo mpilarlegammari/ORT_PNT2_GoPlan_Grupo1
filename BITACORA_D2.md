@@ -1,64 +1,71 @@
 # 📋 Bitácora de Desarrollo — Desarrollador 2 (Carlos)
 **Proyecto:** GoPlan — Plataforma de Actividades y Reservas  
 **Materia:** Programación en Nuevas Tecnologías 2 (ORT)  
-**Fecha de sesión:** 10 de Noviembre de 2026  
+**Última actualización:** 13 de Noviembre de 2026  
 **Rama de trabajo:** `feature/catalogo-actividades`  
 
 ---
 
-## 🚀 ¿Qué hicimos hoy?
+## 🚀 Lo que hicimos hoy: Integración con Backend y Testing
 
-Trabajamos en el alcance del **Desarrollador 2 (D2)**: Catálogo, filtros, detalle y favoritos con diseño inspirado en la grilla y tarjetas de **Ticketek Argentina**.
+### 1. Integración con `origin/main` (Trabajo de D1 y D3)
+- Realizamos un merge limpio trayendo:
+  - El sistema de autenticación (Login con credenciales y Login con Google).
+  - La configuración de variables de entorno para el proxy de Vite (`.env.example` y `.env.local`).
+  - El cliente HTTP compartido `src/services/api.js`.
+- Resolvimos los conflictos en `App.vue`, `src/router/index.js` y `main.css`, manteniendo la barra superior moderna de GoPlan con tus enlaces (Actividades, Favoritos con badge contador, Mis Reservas, Perfil) y ocultándola adecuadamente en pantallas de login/registro.
 
-### 1. Arquitectura y Modularización
-- **Store en Pinia (`src/stores/actividades.js`)**:
-  - Modularizamos la lógica de estado separando datos duros y persistencia.
-  - Implementamos getters computados para filtrar por texto, categoría, actividades activas y actividades futuras (requerimiento explícito del TP).
-  - Métodos preparados para favoritos (`toggleFavorito`, `esFavorito`) y soporte CRUD para futura integración con D4 (Admin).
-- **Módulo de Datos Iniciales (`src/data/actividadesIniciales.js`)**:
-  - Modelo idéntico al acordado con el equipo y el deploy de Render (`nombre`, `descripcion`, `categoria`, `fecha`, `cupo`, `precio`, `direccion`, `ciudad`, `provincia`, `pais`, `imagen`, `destacada`, `activa`).
-- **Utilidad de Almacenamiento (`src/utils/storage.js`)**:
-  - Funciones reutilizables con manejo de errores `try/catch` para persistencia en `localStorage`.
+### 2. Conexión del Catálogo al Backend REST
+- Creamos el servicio `src/services/actividades.js`:
+  - Consume la ruta `/api/actividades` a través del proxy hacia Render (`https://goplan-tp2.onrender.com`).
+  - Implementa un **fallback local resiliente**: si el backend de Render se encuentra suspendido o sin actividades cargadas, carga automáticamente los datos de demostración de `actividadesIniciales.js`. ¡El catálogo nunca queda roto!
+- Conectamos la acción `cargarActividades()` en `src/stores/actividades.js` y se invoca automáticamente en el ciclo de vida `onMounted` de `ActividadesView.vue`.
 
-### 2. Componentes UI (Estilo Ticketek)
-- **`ActividadCard.vue`**:
-  - Imagen con efecto *hover zoom*.
-  - Badge de categoría flotante.
-  - Botón de corazón para agregar/quitar de favoritos con animación reactiva.
-  - Formato de fecha argentina (`Intl.DateTimeFormat`) y moneda en pesos (`Intl.NumberFormat`).
-  - Botón "Ver detalle" enlazado a la ruta dinámica.
-- **`ActividadFiltros.vue`**:
-  - Barra de búsqueda redondeada con icono de lupa y botón para limpiar texto.
-  - Selector horizontal con chips/pills de categorías ("Todas", "Gastronomía", "Fotografía", "Bienestar", "Arte y Diseño").
-  - Contador reactivo de resultados y botón para restablecer filtros.
-- **`ActividadDestacada.vue`**:
-  - Banner horizontal destacado en la parte superior para eventos principales.
+### 3. Calidad de Código y Testing Unitario (Requisito del TP)
+- Creamos `src/stores/__tests__/actividades.spec.js` con **5 tests unitarios** en Vitest:
+  1. Inicialización correcta de actividades activas y futuras.
+  2. Alternancia de favoritos (agregar, persistir en store y quitar).
+  3. Filtrado reactivo por texto de búsqueda.
+  4. Filtrado por categoría seleccionada.
+  5. Restablecimiento completo de filtros.
+- Corregimos la compatibilidad de estilos para que el test `Acceso.spec.js` de autenticación pase al 100%.
 
-### 3. Vistas y Enrutamiento
-- **`ActividadesView.vue`**: Vista principal del catálogo con grilla responsiva (3 columnas desktop, 2 tablet, 1 mobile) y estado vacío amigable cuando no hay coincidencias.
-- **`FavoritosView.vue`**: Vista dedicada a las actividades guardadas por el usuario.
-- **`ActividadDetalleView.vue`**: Estructura base para el detalle individual de la actividad.
-- **`App.vue` & `main.css`**: Barra de navegación superior integrada con logo GoPlan, enlaces a Actividades, Favoritos (con badge contador reactivo), Mis Reservas y Perfil, corrigiendo el estilo boilerplate de Vite.
-- **`router/index.js`**: Rutas conectadas (`/`, `/actividades`, `/actividades/:id`, `/favoritos`).
-
-### 4. Control de Versiones (Git)
-Se realizaron 3 commits atómicos y se subieron a GitHub en la rama **`feature/catalogo-actividades`**, manteniendo la rama principal `main` 100% protegida:
+### 4. Historial de Commits
 1. `5d349d7`: `feat(actividades): agregar store modular con persistencia y datos iniciales`
 2. `79a1a09`: `feat(actividades): agregar componentes Card, Filtros y Banner Destacado estilo Ticketek`
 3. `1312516`: `feat(catalogo): implementar vistas de catalogo, favoritos, detalle y layout con filtros y busqueda`
+4. `8069863`: `docs: agregar bitacora de desarrollo D2 con resumen de avances y pendientes`
+5. `fcbd120`: `merge: integrar cambios de origin/main (backend proxy, login y servicios)`
+6. `e8bace1`: `feat(api): conectar catalogo de actividades a servicio API con fallback local y tests unitarios`
 
 ---
 
-## 🎯 ¿Qué queda pendiente para la próxima sesión?
+## 🔍 ¿Qué falta antes de dar por cerrada tu parte (D2)?
 
-Para completar el 100% del alcance de D2 y dejarlo listo para ensamblar con D3 y D4:
+Para dejar tu entrega sobresaliente y lista para defender con nota alta:
 
-1. **Detalle completo de la actividad (`ActividadDetalleView.vue`)**:
-   - Pulir la pantalla de detalle con ficha técnica completa: mapa/ubicación, cupos restantes en tiempo real, política de cancelación, organizador y galería de fotos.
-   - Dejar listo el botón **"Reservar ahora"** con validación de cupo y evento para conectarlo con la lógica de reserva de D3 (Lauti).
-2. **Página de Favoritos (`FavoritosView.vue`)**:
-   - Agregar mensaje con llamado a la acción más vistoso y botón para vaciar favoritos.
-3. **Tests Unitarios (Vitest)**:
-   - Crear pruebas para la store `actividades.js` (filtrado por nombre, filtrado por categoría, alternar favoritos y persistencia). Esto cumple con el requisito de calidad del TP: *"Implementación de al menos un test unitario por cada lógica de negocio crítica"*.
-4. **Pull Request**:
-   - Crear el Pull Request en GitHub de `feature/catalogo-actividades` hacia `main` para que tus compañeros revisen e integren.
+### 1. Ficha de Detalle de Actividad (`ActividadDetalleView.vue`) — **LO PRÓXIMO**
+Actualmente tiene un diseño provisorio muy simple. Falta convertirlo en una experiencia visual premium estilo Ticketek:
+- **Hero Header**: Foto en alta definición en tamaño completo, con badges flotantes de categoría y fecha.
+- **Grilla en dos columnas (estilo Ticketek/Eventbrite)**:
+  - **Columna izquierda (Contenido principal)**:
+    - Descripción extendida de la experiencia.
+    - Qué incluye el taller/actividad (materiales, duración, nivel requerido, idioma).
+    - Mapa o ficha visual de ubicación (dirección exacta, ciudad, provincia y referencias de llegada).
+    - Datos del organizador / facilitador.
+    - Políticas de cancelación claras (alineado con la regla de 12 horas que implementó D3).
+  - **Columna derecha (Caja flotante de Reserva / Sticky Checkout)**:
+    - Precio en pesos argentinos destacado.
+    - Cupos disponibles en tiempo real con barra visual de disponibilidad (ej. "¡Quedan solo 3 lugares!").
+    - Selector interactivo de cantidad de entradas / cupos a reservar.
+    - Resumen del total a pagar en puntos / dinero.
+    - Botón principal de **"Reservar lugar"** (preparado con validaciones de cupo para integrarse con la store de reservas de D3).
+    - Botón de favoritos accesible.
+
+### 2. Galería de Fotos en Alta Calidad (`src/data/actividadesIniciales.js`)
+Reemplazar las fotos de prueba por imágenes seleccionadas de altísima resolución (gastronomía, fotografía, yoga, cerámica, meditación, enología) con una paleta de colores cuidada y profesional.
+
+### 3. Pantalla de Favoritos (`FavoritosView.vue`)
+- Mejorar los estados vacíos con ilustraciones o iconos atractivos.
+- Botón rápido para "Vaciar todos los favoritos".
+- Acción para compartir o ver disponibilidad.
