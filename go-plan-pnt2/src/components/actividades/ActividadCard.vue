@@ -52,10 +52,7 @@ function toggleFav(e) {
   <article class="actividad-card">
     <div class="card-imagen-wrapper">
       <img
-        :src="
-          actividad.imagen ||
-          'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80'
-        "
+        :src="actividad.imagen"
         :alt="actividad.nombre"
         class="card-imagen"
         loading="lazy"
