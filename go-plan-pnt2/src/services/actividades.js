@@ -1,29 +1,41 @@
 import api from '@/services/api'
-import { ACTIVIDADES_INICIALES } from '@/data/actividadesIniciales'
 
-/**
- * Servicio para gestionar las actividades contra la API REST
- */
-
-export async function obtenerActividadesAPI() {
-  try {
-    const data = await api('/actividades')
-    if (Array.isArray(data) && data.length > 0) {
-      return data
-    }
-    return ACTIVIDADES_INICIALES
-  } catch (error) {
-    console.warn('No se pudo conectar a /api/actividades, usando datos locales:', error.message)
-    return ACTIVIDADES_INICIALES
+// Adapta el modelo del backend al formato que usan las tarjetas y los filtros.
+export function adaptarActividad(actividad) {
+  const ubicacion = actividad.ubicacion || {}
+  return {
+    ...actividad,
+    id: actividad._id || actividad.id,
+    nombre: actividad.nombre || '',
+    descripcion: actividad.descripcion || '',
+    fecha: actividad.fechaInicio || actividad.fecha,
+    ciudad: ubicacion.ciudad?.nombre || actividad.ciudad || '',
+    provincia: ubicacion.provincia?.nombre || actividad.provincia || '',
+    pais: ubicacion.pais?.nombre || actividad.pais || '',
+    direccion: ubicacion.direccion || actividad.direccion || '',
+    // El modelo actual del backend no incluye activa: se considera disponible.
+    activa: actividad.activa ?? true,
   }
 }
 
+export async function obtenerActividadesAPI() {
+  const datos = await api('/actividades')
+  if (!Array.isArray(datos)) throw new Error('No se pudo interpretar el listado de actividades.')
+  return datos.map(adaptarActividad)
+}
+
 export async function obtenerActividadPorIdAPI(id) {
-  try {
-    return await api(`/actividades/${id}`)
-  } catch (error) {
-    console.warn(`No se pudo obtener la actividad ${id} del backend:`, error.message)
-    return null
-  }
+  const datos = await api(`/actividades/${encodeURIComponent(id)}`)
+  if (!datos?._id && !datos?.id) return null
+  return adaptarActividad(datos)
+}
+
+export async function actualizarActividadAPI(id, cambios) {
+  const datos = await api(`/actividades/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(cambios),
+  })
+  return adaptarActividad(datos)
 }
 

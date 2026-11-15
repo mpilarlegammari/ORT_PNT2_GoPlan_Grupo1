@@ -1,12 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { validarAcceso } from './guards.js'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/admin/actividades/:id/editar',
+      name: 'actividad-editar',
+      component: () => import('../views/admin/ActividadFormView.vue'),
+      meta: { requiresAdmin: true },
+    },
+    {
       path: '/',
       name: 'home',
-      component: () => import('../views/actividades/ActividadesView.vue'),
+      redirect: '/login',
     },
     {
       path: '/actividades',
@@ -57,7 +64,13 @@ const router = createRouter({
       name: 'about',
       component: () => import('../views/AboutView.vue'),
     },
+    {
+      path: '/admin',
+      name: 'admin-dashboard',
+      component: () => import('../views/admin/AdminDashboardView.vue'),
+      meta: { requiresAdmin: true },
+    },
   ],
 })
-
+router.beforeEach(validarAcceso)
 export default router

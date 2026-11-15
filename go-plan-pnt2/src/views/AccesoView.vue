@@ -2,7 +2,7 @@
   <div class="auth-page">
     <div class="login-page">
       <aside class="presentacion" aria-label="Bienvenido a GoPlan">
-        <RouterLink class="logo" to="/">GoPlan<span>.</span></RouterLink>
+        <RouterLink class="logo" to="/actividades">GoPlan<span>.</span></RouterLink>
         <div class="mensaje">
           <h2>
             Un nuevo plan.<br /><span>Una nueva<br />versión de vos.</span>
@@ -22,7 +22,7 @@
           <p class="bajada">TU PRÓXIMO PLAN EMPIEZA ACÁ</p>
           <RouterView />
           <p class="pie-formulario">Descubrí nuevas experiencias con GoPlan.</p>
-          <RouterLink class="volver" to="/">← Volver al inicio</RouterLink>
+          <RouterLink class="volver" to="/actividades">← Volver al inicio</RouterLink>
         </div>
       </section>
     </div>

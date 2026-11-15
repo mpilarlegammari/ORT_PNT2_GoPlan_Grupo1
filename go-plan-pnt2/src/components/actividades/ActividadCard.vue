@@ -1,4 +1,5 @@
 <script setup>
+import EditarActividadButton from '@/components/actividades/EditarActividadButton.vue'
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useActividadesStore } from '@/stores/actividades'
@@ -13,6 +14,9 @@ const props = defineProps({
 const store = useActividadesStore()
 
 const esFav = computed(() => store.esFavorito(props.actividad.id))
+const cuposDisponibles = computed(() =>
+  Math.max(0, props.actividad.cupo - (props.actividad.cuposReservados ?? 0)),
+)
 
 const formatoFecha = new Intl.DateTimeFormat('es-AR', {
   dateStyle: 'medium',
@@ -48,7 +52,10 @@ function toggleFav(e) {
   <article class="actividad-card">
     <div class="card-imagen-wrapper">
       <img
-        :src="actividad.imagen || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80'"
+        :src="
+          actividad.imagen ||
+          'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80'
+        "
         :alt="actividad.nombre"
         class="card-imagen"
         loading="lazy"
@@ -80,13 +87,19 @@ function toggleFav(e) {
       <div class="card-meta">
         <span class="fecha">
           <svg class="icono-mini" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor" d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z" />
+            <path
+              fill="currentColor"
+              d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"
+            />
           </svg>
           {{ formatearFecha(actividad.fecha) }}
         </span>
         <span class="ubicacion">
           <svg class="icono-mini" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+            <path
+              fill="currentColor"
+              d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
+            />
           </svg>
           {{ actividad.ciudad }}, {{ actividad.provincia }}
         </span>
@@ -102,11 +115,15 @@ function toggleFav(e) {
         {{ actividad.descripcion }}
       </p>
 
+      <EditarActividadButton :id="actividad.id" />
       <div class="card-pie">
         <div class="precio-cupo">
           <span class="precio-label">Precio</span>
           <span class="precio-valor">{{ formatearPrecio(actividad.precio) }}</span>
-          <span class="cupo-disponible">{{ actividad.cupo }} lugares disp.</span>
+          <span v-if="cuposDisponibles > 0" class="cupo-disponible">
+            {{ cuposDisponibles }} lugares disp.
+          </span>
+          <span v-else class="cupo-disponible sin-cupos">Sin cupos</span>
         </div>
 
         <RouterLink
@@ -128,7 +145,10 @@ function toggleFav(e) {
   border: 1px solid var(--color-border, #e2e8f0);
   border-radius: 12px;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
   height: 100%;
 }
 
@@ -185,7 +205,9 @@ function toggleFav(e) {
   place-items: center;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  transition: background 0.2s ease, transform 0.15s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease;
 }
 
 .btn-favorito:hover {
@@ -197,7 +219,9 @@ function toggleFav(e) {
   width: 20px;
   height: 20px;
   fill: #94a3b8;
-  transition: fill 0.2s ease, transform 0.2s ease;
+  transition:
+    fill 0.2s ease,
+    transform 0.2s ease;
 }
 
 .btn-favorito.activo .icono-corazon {
@@ -206,9 +230,15 @@ function toggleFav(e) {
 }
 
 @keyframes pulso {
-  0% { transform: scale(0.8); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 .card-cuerpo {
@@ -227,7 +257,8 @@ function toggleFav(e) {
   color: #64748b;
 }
 
-.fecha, .ubicacion {
+.fecha,
+.ubicacion {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -318,4 +349,3 @@ function toggleFav(e) {
   background: #1d4ed8;
 }
 </style>
-

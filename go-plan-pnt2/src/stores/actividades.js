@@ -1,17 +1,17 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { ACTIVIDADES_INICIALES } from '@/data/actividadesIniciales'
+
 import { leerStorage, escribirStorage } from '@/utils/storage'
 import { obtenerActividadesAPI } from '@/services/actividades'
 
-const STORAGE_KEY_ACTIVIDADES = 'goplan_actividades'
 const STORAGE_KEY_FAVORITOS = 'goplan_favoritos'
 
 export const useActividadesStore = defineStore('actividades', () => {
   // Estado base
-  const actividades = ref(leerStorage(STORAGE_KEY_ACTIVIDADES, ACTIVIDADES_INICIALES))
+  const actividades = ref([])
   const favoritosIds = ref(leerStorage(STORAGE_KEY_FAVORITOS, []))
   const cargando = ref(false)
+  const error = ref('')
 
   // Filtros
   const busquedaTexto = ref('')
@@ -62,12 +62,12 @@ export const useActividadesStore = defineStore('actividades', () => {
   // Acciones - Backend / API
   async function cargarActividades() {
     cargando.value = true
+    error.value = ''
     try {
-      const datos = await obtenerActividadesAPI()
-      if (datos && datos.length > 0) {
-        actividades.value = datos
-        escribirStorage(STORAGE_KEY_ACTIVIDADES, datos)
-      }
+      actividades.value = await obtenerActividadesAPI()
+    } catch (err) {
+      actividades.value = []
+      error.value = err.message || 'No se pudieron cargar las actividades.'
     } finally {
       cargando.value = false
     }
@@ -109,14 +109,12 @@ export const useActividadesStore = defineStore('actividades', () => {
   // Acciones - CRUD (preparadas para la integración de D4 Admin)
   function agregarActividad(nueva) {
     actividades.value.unshift(nueva)
-    escribirStorage(STORAGE_KEY_ACTIVIDADES, actividades.value)
   }
 
   function actualizarActividad(id, cambios) {
     const idx = actividades.value.findIndex((a) => a.id === id)
     if (idx !== -1) {
       actividades.value[idx] = { ...actividades.value[idx], ...cambios }
-      escribirStorage(STORAGE_KEY_ACTIVIDADES, actividades.value)
     }
   }
 
@@ -124,7 +122,6 @@ export const useActividadesStore = defineStore('actividades', () => {
     const act = obtenerActividadPorId(id)
     if (act) {
       act.activa = !act.activa
-      escribirStorage(STORAGE_KEY_ACTIVIDADES, actividades.value)
     }
   }
 
@@ -132,6 +129,7 @@ export const useActividadesStore = defineStore('actividades', () => {
     actividades,
     favoritosIds,
     cargando,
+    error,
     busquedaTexto,
     categoriaSeleccionada,
     categorias,

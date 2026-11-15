@@ -42,6 +42,7 @@ function mostrarFecha(fecha, incluirHora = false) {
     >
       Solicitar cancelación
     </button>
+    <slot name="acciones" />
   </article>
 </template>
 

@@ -1,10 +1,23 @@
 <script setup>
 import { computed } from 'vue'
-import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useActividadesStore } from '@/stores/actividades'
 import useAuthStore from '@/stores/authStore'
+import { useAuth } from '@/composables/useAuth'
 
 const route = useRoute()
+const router = useRouter()
+const { logout, loading: cerrandoSesion, error: errorSesion } = useAuth()
+
+async function cerrarSesion() {
+  if (cerrandoSesion.value) return
+  try {
+    await logout()
+    await router.replace('/login')
+  } catch {
+    // Se conserva la sesión y se muestra el error para poder reintentar.
+  }
+}
 const actividadesStore = useActividadesStore()
 const authStore = useAuthStore()
 
@@ -17,7 +30,7 @@ const usuario = computed(() => authStore.usuario)
     <!-- Oculta cabecera en vistas de login/registro -->
     <header v-if="!route.meta.acceso" class="app-header cabecera">
       <div class="header-contenedor">
-        <RouterLink to="/" class="logo-link">
+        <RouterLink to="/actividades" class="logo-link">
           <span class="logo-marca">GoPlan</span>
           <span class="logo-punto">.</span>
         </RouterLink>
@@ -32,14 +45,21 @@ const usuario = computed(() => authStore.usuario)
           <RouterLink to="/perfil">Mi perfil</RouterLink>
 
           <!-- Acceso / Cuenta según estado de sesión -->
-          <RouterLink v-if="!usuario" to="/login" class="link-acceso">
-            Iniciar sesión
-          </RouterLink>
-          <span v-else class="usuario-logueado">
-            Hola, {{ usuario.nombre || usuario.email }}
-          </span>
+          <RouterLink v-if="!usuario" to="/login" class="link-acceso"> Iniciar sesión </RouterLink>
+          <template v-else>
+            <span class="usuario-logueado">Hola, {{ usuario.nombre || usuario.email }}</span>
+            <button
+              class="boton-salir"
+              type="button"
+              :disabled="cerrandoSesion"
+              @click="cerrarSesion"
+            >
+              {{ cerrandoSesion ? 'Cerrando sesión…' : 'Cerrar sesión' }}
+            </button>
+          </template>
         </nav>
       </div>
+      <p v-if="errorSesion" class="error-sesion" role="alert">{{ errorSesion }}</p>
     </header>
 
     <main class="app-contenido" :class="{ 'pagina-completa': route.meta.acceso }">
@@ -53,6 +73,33 @@ const usuario = computed(() => authStore.usuario)
 </template>
 
 <style scoped>
+.boton-salir {
+  padding: 0.5rem 0.85rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #475569;
+  font: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.boton-salir:hover {
+  background: #f1f5f9;
+}
+.boton-salir:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+}
+.boton-salir:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.error-sesion {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem 0.85rem;
+  color: #a42c2c;
+}
 .app-layout {
   min-height: 100vh;
   display: flex;

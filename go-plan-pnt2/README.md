@@ -21,6 +21,15 @@ See [Vite Configuration Reference](https://vite.dev/config/).
 
 ## Project Setup
 
+La vista `/perfil` usa `GET /api/auth/me` para consultar la sesión y
+`PATCH /api/usuarios/me` para guardar los cambios. Ambas solicitudes usan
+la cookie de sesión del mismo origen.
+
+En desarrollo, Perfil y Reservas usan el mismo proxy de Vite que el login.
+Configurá el destino y el origen con `API_PROXY_TARGET` y `API_PROXY_ORIGIN`.
+Reservas consulta la API por defecto. Para usar datos de demostración en Mis Reservas, configurá `VITE_RESERVAS_API=false` en `.env.local`.
+En producción, el servidor que publique Vue debe reenviar `/api` bajo el mismo origen.
+
 ```sh
 npm install
 ```

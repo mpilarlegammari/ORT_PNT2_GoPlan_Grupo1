@@ -21,7 +21,7 @@ const mostrarDestacada = computed(() => {
 <template>
   <main class="catalogo-vista">
     <!-- Banner Principal estilo Ticketek -->
-    <ActividadDestacada v-if="mostrarDestacada" />
+    <ActividadDestacada v-if="mostrarDestacada && !store.cargando && !store.error" />
 
     <!-- Barra de búsqueda y filtros de categoría -->
     <header class="catalogo-encabezado">
@@ -33,24 +33,40 @@ const mostrarDestacada = computed(() => {
 
     <ActividadFiltros />
 
+    <section v-if="store.cargando" class="estado-vacio" role="status">
+      <p>Cargando actividades…</p>
+    </section>
+    <section v-else-if="store.error" class="estado-vacio" role="alert">
+      <h2>No pudimos cargar las actividades</h2>
+      <p>{{ store.error }}</p>
+      <button class="btn-restablecer" type="button" @click="store.cargarActividades">
+        Reintentar
+      </button>
+    </section>
     <!-- Grilla de Actividades -->
-    <section v-if="actividades.length > 0" class="grilla-actividades" aria-label="Lista de actividades">
-      <ActividadCard
-        v-for="actividad in actividades"
-        :key="actividad.id"
-        :actividad="actividad"
-      />
+    <section
+      v-else-if="actividades.length > 0"
+      class="grilla-actividades"
+      aria-label="Lista de actividades"
+    >
+      <ActividadCard v-for="actividad in actividades" :key="actividad.id" :actividad="actividad" />
     </section>
 
     <!-- Estado vacío cuando no hay resultados de búsqueda -->
     <section v-else class="estado-vacio" role="alert">
       <div class="icono-vacio">🔍</div>
       <h2>No encontramos actividades</h2>
-      <p>
-        No hay resultados que coincidan con "{{ store.busquedaTexto }}".
-        Probá con otra palabra o cambiá de categoría.
+      <p v-if="store.busquedaTexto || store.categoriaSeleccionada !== 'todas'">
+        No hay resultados que coincidan con tus filtros. Probá con otra palabra o cambiá de
+        categoría.
       </p>
-      <button type="button" class="btn-restablecer" @click="store.reiniciarFiltros">
+      <p v-else>Por el momento no hay actividades disponibles.</p>
+      <button
+        v-if="store.busquedaTexto || store.categoriaSeleccionada !== 'todas'"
+        type="button"
+        class="btn-restablecer"
+        @click="store.reiniciarFiltros"
+      >
         Ver todas las actividades
       </button>
     </section>

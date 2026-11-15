@@ -1,11 +1,12 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useActividadesStore } from '@/stores/actividades'
 import ActividadCard from '@/components/actividades/ActividadCard.vue'
 
 const store = useActividadesStore()
 const favoritos = computed(() => store.listaFavoritos)
+onMounted(() => store.cargarActividades())
 </script>
 
 <template>
@@ -18,12 +19,13 @@ const favoritos = computed(() => store.listaFavoritos)
       <p>Tené a mano las experiencias que más te interesan para reservar cuando quieras.</p>
     </header>
 
-    <div v-if="favoritos.length > 0" class="grilla-favoritos">
-      <ActividadCard
-        v-for="actividad in favoritos"
-        :key="actividad.id"
-        :actividad="actividad"
-      />
+    <p v-if="store.cargando" role="status">Cargando favoritos…</p>
+    <div v-else-if="store.error" role="alert">
+      <p>{{ store.error }}</p>
+      <button type="button" @click="store.cargarActividades">Reintentar</button>
+    </div>
+    <div v-else-if="favoritos.length > 0" class="grilla-favoritos">
+      <ActividadCard v-for="actividad in favoritos" :key="actividad.id" :actividad="actividad" />
     </div>
 
     <div v-else class="sin-favoritos">
