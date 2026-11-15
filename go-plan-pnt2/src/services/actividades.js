@@ -26,3 +26,4 @@ export async function obtenerActividadPorIdAPI(id) {
     return null
   }
 }
+

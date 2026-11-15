@@ -62,3 +62,4 @@ describe('useActividadesStore', () => {
     expect(store.categoriaSeleccionada).toBe('todas')
   })
 })
+

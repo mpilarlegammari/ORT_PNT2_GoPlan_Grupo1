@@ -1,0 +1,17 @@
+# Ignorar bitácoras y registros de agentes
+BITACORA*.md
+bitacora*.md
+*USO_IA*.md
+*uso_ia*.md
+*.agent*
+.gemini/
+.antigravity/
+
+# Archivos de entorno y locales
+.env
+.env.*
+!.env.example
+*.local
+
+# Logs
+*.log
