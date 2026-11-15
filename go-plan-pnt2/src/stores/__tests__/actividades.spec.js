@@ -91,5 +91,30 @@ describe('catálogo del backend', () => {
     expect(store.error).toBe('')
     expect(store.actividadesDisponibles).toHaveLength(1)
   })
+
+  it('aísla los favoritos según la cuenta del usuario logueado', async () => {
+    const { default: useAuthStore } = await import('@/stores/authStore')
+    const authStore = useAuthStore()
+    const store = useActividadesStore()
+
+    // Usuario 1
+    authStore.setUser({ id: 'user-1', email: 'user1@test.com' })
+    store.sincronizarFavoritos()
+    store.toggleFavorito('act-1')
+    expect(store.esFavorito('act-1')).toBe(true)
+
+    // Usuario 2 entra en el mismo navegador
+    authStore.setUser({ id: 'user-2', email: 'user2@test.com' })
+    store.sincronizarFavoritos()
+    expect(store.esFavorito('act-1')).toBe(false)
+    store.toggleFavorito('act-2')
+    expect(store.esFavorito('act-2')).toBe(true)
+
+    // Vuelve el Usuario 1
+    authStore.setUser({ id: 'user-1', email: 'user1@test.com' })
+    store.sincronizarFavoritos()
+    expect(store.esFavorito('act-1')).toBe(true)
+    expect(store.esFavorito('act-2')).toBe(false)
+  })
 })
 

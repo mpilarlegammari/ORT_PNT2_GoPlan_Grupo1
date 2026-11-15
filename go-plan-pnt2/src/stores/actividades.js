@@ -1,17 +1,38 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 import { leerStorage, escribirStorage } from '@/utils/storage'
 import { obtenerActividadesAPI } from '@/services/actividades'
-
-const STORAGE_KEY_FAVORITOS = 'goplan_favoritos'
+import useAuthStore from '@/stores/authStore'
 
 export const useActividadesStore = defineStore('actividades', () => {
+  const authStore = useAuthStore()
+
+  // Clave dinámica según el usuario conectado
+  function obtenerClaveFavoritos() {
+    const usuario = authStore.usuario
+    const idUsuario = usuario?.id || usuario?._id || usuario?.email
+    return idUsuario ? `goplan_favoritos_${idUsuario}` : 'goplan_favoritos_invitado'
+  }
+
   // Estado base
   const actividades = ref([])
-  const favoritosIds = ref(leerStorage(STORAGE_KEY_FAVORITOS, []))
+  const favoritosIds = ref(leerStorage(obtenerClaveFavoritos(), []))
   const cargando = ref(false)
   const error = ref('')
+
+  function sincronizarFavoritos() {
+    favoritosIds.value = leerStorage(obtenerClaveFavoritos(), [])
+  }
+
+  // Sincronizar automáticamente cuando cambie el usuario en authStore
+  watch(
+    () => authStore.usuario,
+    () => {
+      sincronizarFavoritos()
+    },
+    { deep: true },
+  )
 
   // Filtros
   const busquedaTexto = ref('')
@@ -64,9 +85,9 @@ export const useActividadesStore = defineStore('actividades', () => {
     cargando.value = true
     error.value = ''
     try {
-      actividades.value = await obtenerActividadesAPI()
+      const datos = await obtenerActividadesAPI()
+      actividades.value = Array.isArray(datos) ? datos : []
     } catch (err) {
-      actividades.value = []
       error.value = err.message || 'No se pudieron cargar las actividades.'
     } finally {
       cargando.value = false
@@ -85,7 +106,12 @@ export const useActividadesStore = defineStore('actividades', () => {
     } else {
       favoritosIds.value.push(id)
     }
-    escribirStorage(STORAGE_KEY_FAVORITOS, favoritosIds.value)
+    escribirStorage(obtenerClaveFavoritos(), favoritosIds.value)
+  }
+
+  function vaciarFavoritos() {
+    favoritosIds.value = []
+    escribirStorage(obtenerClaveFavoritos(), [])
   }
 
   // Acciones - Filtros y Búsqueda
@@ -106,7 +132,7 @@ export const useActividadesStore = defineStore('actividades', () => {
     return actividades.value.find((act) => act.id === id) || null
   }
 
-  // Acciones - CRUD (preparadas para la integración de D4 Admin)
+  // Acciones - CRUD
   function agregarActividad(nueva) {
     actividades.value.unshift(nueva)
   }
@@ -138,8 +164,10 @@ export const useActividadesStore = defineStore('actividades', () => {
     actividadesFiltradas,
     listaFavoritos,
     cargarActividades,
+    sincronizarFavoritos,
     esFavorito,
     toggleFavorito,
+    vaciarFavoritos,
     setBusqueda,
     setCategoria,
     reiniciarFiltros,

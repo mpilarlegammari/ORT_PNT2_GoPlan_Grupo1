@@ -17,6 +17,11 @@ onMounted(() => store.cargarActividades())
       </nav>
       <h1>Mis Actividades Favoritas</h1>
       <p>Tené a mano las experiencias que más te interesan para reservar cuando quieras.</p>
+      <div v-if="favoritos.length > 0" class="acciones-favoritos">
+        <button type="button" class="btn-vaciar" @click="store.vaciarFavoritos">
+          Vaciar lista de favoritos
+        </button>
+      </div>
     </header>
 
     <p v-if="store.cargando" role="status">Cargando favoritos…</p>
@@ -47,6 +52,24 @@ onMounted(() => store.cargarActividades())
   font-weight: 600;
   display: inline-block;
   margin-bottom: 0.5rem;
+}
+.acciones-favoritos {
+  margin-top: 1rem;
+}
+.btn-vaciar {
+  background: transparent;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 0.4rem 0.85rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-vaciar:hover {
+  background: #ef4444;
+  color: #ffffff;
 }
 .grilla-favoritos {
   display: grid;
