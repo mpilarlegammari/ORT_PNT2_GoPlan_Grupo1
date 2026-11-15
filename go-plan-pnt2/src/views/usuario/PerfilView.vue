@@ -45,8 +45,8 @@ async function guardarCambios() {
   const apellido = borrador.value.apellido.trim()
   const correo = borrador.value.correo.trim()
 
-  if (!nombre || !apellido || !correo) {
-    error.value = 'Completá nombre, apellido y correo.'
+  if (!nombre || !correo || (perfil.value.apellido && !apellido)) {
+    error.value = 'Completá los datos obligatorios del perfil.'
     return
   }
 
@@ -54,7 +54,7 @@ async function guardarCambios() {
   error.value = ''
   try {
     const titular = auth.usuario
-    perfil.value = await guardarPerfil({ nombre, apellido, correo })
+    perfil.value = await guardarPerfil({ nombre, apellido: apellido || undefined, correo })
     if (titular && auth.usuario === titular) {
       auth.setUser({
         ...titular,
@@ -128,7 +128,7 @@ async function guardarCambios() {
           v-model="borrador.apellido"
           autocomplete="family-name"
           :disabled="guardando"
-          required
+          :required="Boolean(perfil.apellido)"
         />
       </div>
       <div class="campo">
