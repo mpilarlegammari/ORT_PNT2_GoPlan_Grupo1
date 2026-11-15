@@ -8,7 +8,7 @@ import { obtenerErrorCancelacion } from '@/utils/reservas'
 const reservas = ref([])
 const cargando = ref(true)
 const errorConsulta = ref(false)
-const usarApi = import.meta.env.VITE_RESERVAS_API === 'true'
+const usarApi = import.meta.env.VITE_RESERVAS_API !== 'false'
 const descargandoId = ref(null)
 const errorDescarga = ref('')
 

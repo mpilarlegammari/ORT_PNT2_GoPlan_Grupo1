@@ -6,7 +6,7 @@ export default async function api(ruta, opciones = {}) {
   } catch {
     throw new Error('No se pudo conectar con el servidor. Intentá nuevamente.')
   }
-  const datos = respuesta.status === 204 ? null : await respuesta.json()
+  const datos = respuesta.status === 204 ? null : await respuesta.json().catch(() => null)
   if (!respuesta.ok) {
     const error = new Error(datos?.error || 'No se pudo completar la solicitud.')
     error.status = respuesta.status

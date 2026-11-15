@@ -1,12 +1,12 @@
-async function solicitarPerfil(ruta, opciones) {
-  const respuesta = await fetch(ruta, { credentials: 'same-origin', ...opciones })
-  const datos = await respuesta.json().catch(() => null)
+import api from './api.js'
 
-  if (respuesta.status === 401) {
-    throw new Error('Iniciá sesión para consultar o editar tu perfil.')
-  }
-  if (!respuesta.ok) {
-    throw new Error(typeof datos?.error === 'string' ? datos.error : 'No pudimos acceder a tu perfil.')
+async function solicitarPerfil(ruta, opciones) {
+  let datos
+  try {
+    datos = await api(ruta, opciones)
+  } catch (error) {
+    if (error.status === 401) throw new Error('Iniciá sesión para consultar o editar tu perfil.')
+    throw error
   }
 
   const usuario = datos?.usuario
@@ -23,10 +23,10 @@ async function solicitarPerfil(ruta, opciones) {
   }
 }
 
-export const consultarPerfil = () => solicitarPerfil('/api/auth/me')
+export const consultarPerfil = () => solicitarPerfil('/auth/me')
 
 export const guardarPerfil = ({ nombre, apellido, correo }) =>
-  solicitarPerfil('/api/usuarios/me', {
+  solicitarPerfil('/usuarios/me', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ nombre, apellido, email: correo }),

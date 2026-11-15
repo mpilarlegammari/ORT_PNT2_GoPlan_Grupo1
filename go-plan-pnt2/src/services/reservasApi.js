@@ -1,23 +1,18 @@
-async function solicitarReserva(ruta = '', { method = 'GET', datos } = {}) {
-  const respuesta = await fetch(`/api/reservas${ruta}`, {
-    method,
-    credentials: 'same-origin',
-    ...(method === 'GET'
-      ? {}
-      : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos ?? {}) }),
-  })
-  const resultado = await respuesta.json()
-  if (!respuesta.ok) {
-    throw new Error(resultado.error ?? 'No pudimos procesar la reserva.')
-  }
-  return resultado
-}
+import api from './api.js'
 
-export const consultarReservas = () => solicitarReserva()
+export const consultarReservas = () => api('/reservas')
 export const crearReserva = (actividadId) =>
-  solicitarReserva('', { method: 'POST', datos: { actividadId } })
+  api('/reservas', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ actividadId }),
+  })
 export const cancelarReserva = (id) =>
-  solicitarReserva(`/${encodeURIComponent(id)}/cancelar`, { method: 'PATCH' })
+  api(`/reservas/${encodeURIComponent(id)}/cancelar`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{}',
+  })
 
 export async function descargarComprobante(id) {
   const respuesta = await fetch(`/api/reservas/${encodeURIComponent(id)}/comprobante`, {

@@ -3,6 +3,9 @@ import { flushPromises, mount } from '@vue/test-utils'
 import * as servicio from '@/services/reservasDemo'
 import MisReservas from '../MisReservas.vue'
 
+beforeEach(() => vi.stubEnv('VITE_RESERVAS_API', 'false'))
+afterEach(() => vi.unstubAllEnvs())
+
 describe('Confirmación de cancelación local', () => {
   let wrapper
 

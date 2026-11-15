@@ -1,7 +1,9 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { consultarPerfil, guardarPerfil } from '@/services/perfilApi'
+import useAuthStore from '@/stores/authStore.js'
 
+const auth = useAuthStore()
 const perfil = ref(null)
 const cargando = ref(true)
 const errorConsulta = ref('')
@@ -51,7 +53,16 @@ async function guardarCambios() {
   guardando.value = true
   error.value = ''
   try {
+    const titular = auth.usuario
     perfil.value = await guardarPerfil({ nombre, apellido, correo })
+    if (titular && auth.usuario === titular) {
+      auth.setUser({
+        ...titular,
+        nombre: perfil.value.nombre,
+        apellido: perfil.value.apellido,
+        email: perfil.value.correo,
+      })
+    }
     borrador.value = null
     mensaje.value = 'Guardaste los cambios de tu perfil.'
   } catch (fallo) {
