@@ -5,7 +5,9 @@ async function solicitarPerfil(ruta, opciones) {
   try {
     datos = await api(ruta, opciones)
   } catch (error) {
-    if (error.status === 401) throw new Error('Iniciá sesión para consultar o editar tu perfil.')
+    if (error.status === 401) {
+      throw new Error('Iniciá sesión para consultar o editar tu perfil.', { cause: error })
+    }
     throw error
   }
 

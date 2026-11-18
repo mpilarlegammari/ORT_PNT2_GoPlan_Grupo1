@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
   }
 
   return {
-    plugins: [vue(), vueDevTools()],
+    plugins: [vue(), ...(mode === 'development' ? [vueDevTools()] : [])],
     server: { proxy, headers: { 'Referrer-Policy': 'no-referrer-when-downgrade' } },
     preview: { proxy, headers: { 'Referrer-Policy': 'no-referrer-when-downgrade' } },
     resolve: {

@@ -37,16 +37,17 @@ it.each([null, 'usuario', 'admin'])('muestra Editar solo para admin: %s', (rol) 
     global: { stubs: { RouterLink: RouterLinkStub } },
   })
   expect(wrapper.find('.btn-editar').exists()).toBe(rol === 'admin')
-  if (rol === 'admin')
-    expect(
-      wrapper
-        .findAllComponents(RouterLinkStub)
-        .find((enlace) => enlace.props('to')?.name === 'actividad-editar')
-        ?.props('to'),
-    ).toEqual({
-      name: 'actividad-editar',
-      params: { id: '123' },
-    })
+  const enlaceEdicion = wrapper
+    .findAllComponents(RouterLinkStub)
+    .find((enlace) => enlace.props('to')?.name === 'actividad-editar')
+  expect(enlaceEdicion?.props('to')).toEqual(
+    rol === 'admin'
+      ? {
+          name: 'actividad-editar',
+          params: { id: '123' },
+        }
+      : undefined,
+  )
 })
 
 it('guarda cambios con PUT y conserva los códigos de ubicación del backend', async () => {

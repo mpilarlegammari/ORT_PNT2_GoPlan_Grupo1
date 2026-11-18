@@ -30,8 +30,11 @@ Configurá el destino y el origen con `API_PROXY_TARGET` y `API_PROXY_ORIGIN`.
 Reservas consulta la API por defecto. Para usar datos de demostración en Mis Reservas, configurá `VITE_RESERVAS_API=false` en `.env.local`.
 En producción, el servidor que publique Vue debe reenviar `/api` bajo el mismo origen.
 
+Requiere Node.js 22.18 o superior dentro de la rama 22. Para instalar las
+dependencias exactamente desde el lockfile:
+
 ```sh
-npm install
+npm ci
 ```
 
 ### Compile and Hot-Reload for Development
@@ -81,9 +84,9 @@ Reiniciar Vite después de modificar estas variables.
 
 La sesión se mantiene con la cookie HttpOnly a través del proxy. La conexión directa
 desde el navegador al dominio remoto requiere configurar CORS y las cookies en el
-backend. En producción, configurar un proxy inverso `/api` hacia Render en el hosting
-del frontend; el build estático no incluye el proxy de Vite. El proxy de producción
-debe enviar el Origin permitido por el backend, o adaptar APP_ORIGIN al origen real.
+backend. El build estático no incluye el proxy de Vite: Netlify usa el proxy de
+`netlify.toml`; otros hostings deben reenviar `/api` al backend bajo el mismo origen
+y conservar las cookies.
 
 ## Organización basada en las clases
 
@@ -118,4 +121,38 @@ API_PROXY_TARGET=http://localhost:8080
 API_PROXY_ORIGIN=http://localhost:8080
 ```
 
-Reiniciar Vite. En producción, conservar el proxy `/api` y configurar `Referrer-Policy: no-referrer-when-downgrade` para pruebas HTTP en localhost (Vite ya la envía). La configuración OAuth y el acceso real se verifican con una cuenta de Google en el navegador.
+Reiniciar Vite. Este proxy aplica solo a desarrollo y preview local; en producción
+se usa el proxy de Netlify descrito más abajo. La configuración OAuth y el acceso
+real se verifican con una cuenta de Google en el navegador.
+
+## Despliegue en producción (Netlify)
+
+El repositorio incluye `netlify.toml` en la raíz. Al vincular el repositorio con
+Netlify, la configuración define `go-plan-pnt2` como directorio base, ejecuta
+`npm run build`, publica `dist`, configura el proxy `/api` al backend actual de
+Render y agrega el fallback requerido por Vue Router. No agregues credenciales
+del backend ni de Google al frontend o a variables `VITE_*`.
+
+Antes de habilitar el sitio:
+
+1. Reemplazá en `netlify.toml` `https://goplan-tp2.onrender.com` si el backend
+   de producción tiene otra URL.
+2. Después de crear el sitio, configurá `APP_ORIGIN` en el backend con el origen
+   público exacto del frontend, por ejemplo `https://<sitio>.netlify.app` (o tu
+   dominio personalizado). El proxy de Netlify mantiene `/api` bajo el dominio
+   del frontend, así que el navegador no requiere CORS para estas solicitudes.
+3. En Google Cloud, autorizá ese mismo origen para Google Identity Services.
+   Conservá `GOOGLE_CLIENT_ID` y cualquier secreto únicamente en el backend.
+4. En el backend, usá una cookie de sesión host-only (sin `Domain`), con
+   `HttpOnly`, `Secure` y `SameSite=Lax`. Devolvé `Cache-Control: no-store` en
+   respuestas de sesión, perfil y reservas para evitar cachear datos privados.
+5. Verificá en producción el registro/login, la persistencia de sesión al
+   recargar, logout, perfil y reservas.
+6. Si usás deploy previews de Netlify, recordá que el proxy definido aquí apunta
+   al mismo backend. No pruebes operaciones que alteren datos reales desde una
+   preview; configurá un backend de staging antes de usarlas para QA.
+
+El `.env` y `.env.local` se usan solo para desarrollo con Vite; no configuran el
+proxy de producción. `npm run check` ejecuta lint, pruebas unitarias y build.
+GitHub Actions también audita las dependencias de producción en cambios a
+`main` y pull requests.
