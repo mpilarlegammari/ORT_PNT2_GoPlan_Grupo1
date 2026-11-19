@@ -23,6 +23,7 @@ const authStore = useAuthStore()
 
 const cantidadFavoritos = computed(() => actividadesStore.favoritosIds.length)
 const usuario = computed(() => authStore.usuario)
+const esAdministrador = computed(() => authStore.isAdmin)
 </script>
 
 <template>
@@ -43,6 +44,10 @@ const usuario = computed(() => authStore.usuario)
           </RouterLink>
           <RouterLink to="/mis-reservas">Mis reservas</RouterLink>
           <RouterLink to="/perfil">Mi perfil</RouterLink>
+
+          <RouterLink v-if="esAdministrador" to="/admin/actividades">
+          Administrar actividades
+          </RouterLink>
 
           <!-- Acceso / Cuenta según estado de sesión -->
           <RouterLink v-if="!usuario" to="/login" class="link-acceso"> Iniciar sesión </RouterLink>

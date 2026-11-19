@@ -11,6 +11,12 @@ const router = createRouter({
       meta: { requiresAdmin: true },
     },
     {
+      path: '/admin/actividades/nueva',
+      name: 'actividad-crear',
+      component: () => import('../views/admin/ActividadCrearView.vue'),
+      meta: { requiresAdmin: true },
+    },
+    {
       path: '/',
       name: 'home',
       redirect: '/login',
@@ -63,6 +69,12 @@ const router = createRouter({
       path: '/about',
       name: 'about',
       component: () => import('../views/AboutView.vue'),
+    },
+    {
+      path: '/admin/actividades',
+      name: 'admin-actividades',
+      component: () => import('../views/admin/AdminActividadesView.vue'),
+      meta: { requiresAdmin: true },
     },
     {
       path: '/admin',
