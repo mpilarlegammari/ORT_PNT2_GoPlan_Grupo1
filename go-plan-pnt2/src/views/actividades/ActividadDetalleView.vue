@@ -347,7 +347,7 @@ async function reservar() {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: #2563eb;
+  color: #fc7e22;
   font-weight: 600;
   text-decoration: none;
   font-size: 0.95rem;
@@ -355,7 +355,7 @@ async function reservar() {
 }
 
 .link-volver:hover {
-  color: #1d4ed8;
+  color: #ea6c13;
 }
 
 .icono-flecha {
@@ -377,8 +377,8 @@ async function reservar() {
 }
 
 .badge-categoria {
-  background: #eff6ff;
-  color: #2563eb;
+  background: #fff7ed;
+  color: #fc7e22;
   padding: 4px 12px;
   border-radius: 9999px;
   font-size: 0.8rem;
@@ -594,7 +594,7 @@ async function reservar() {
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  color: #2563eb;
+  color: #fc7e22;
   font-weight: 600;
   font-size: 0.85rem;
   text-decoration: none;
@@ -602,8 +602,8 @@ async function reservar() {
 }
 
 .btn-mapa:hover {
-  border-color: #2563eb;
-  background: #eff6ff;
+  border-color: #fc7e22;
+  background: #fff7ed;
 }
 
 /* Aviso de cancelación */
@@ -723,7 +723,7 @@ async function reservar() {
 .btn-reservar-principal {
   width: 100%;
   padding: 0.9rem;
-  background: #2563eb;
+  background: #fc7e22;
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -734,9 +734,9 @@ async function reservar() {
 }
 
 .btn-reservar-principal:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: #ea6c13;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 12px rgba(252, 126, 34, 0.35);
 }
 
 .btn-reservar-principal:disabled {
@@ -817,7 +817,7 @@ async function reservar() {
   width: 40px;
   height: 40px;
   border: 4px solid #e2e8f0;
-  border-top-color: #2563eb;
+  border-top-color: #fc7e22;
   border-radius: 50%;
   animation: girar 0.8s linear infinite;
   margin: 0 auto 1rem;
@@ -832,12 +832,18 @@ async function reservar() {
   display: inline-block;
   margin-top: 1rem;
   padding: 0.75rem 1.5rem;
-  background: #2563eb;
+  background: #fc7e22;
   color: #ffffff;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   text-decoration: none;
   cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-reintentar:hover,
+.btn-volver-catalogo:hover {
+  background: #ea6c13;
 }
 </style>

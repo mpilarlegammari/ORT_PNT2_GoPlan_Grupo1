@@ -19,8 +19,9 @@
   text-decoration: none;
 }
 .auth-page .logo-imagen-acceso {
-  height: 76px;
+  height: clamp(95px, 10vw, 135px);
   width: auto;
+  max-width: 320px;
   object-fit: contain;
   display: block;
 }
@@ -155,13 +156,19 @@
   min-height: 54px;
   border: 0;
   border-radius: 8px;
-  background: #235942;
+  background: #fc7e22;
   color: #fff;
   font-weight: 600;
+  font-size: 1rem;
   padding: 12px 18px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.15s ease;
 }
 .auth-page .principal:hover {
-  background: #194731;
+  background: #ea6c13;
+}
+.auth-page .principal:active {
+  transform: scale(0.99);
 }
 .auth-page button:disabled {
   opacity: 0.65;

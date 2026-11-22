@@ -285,7 +285,7 @@ function toggleFav() {
 
 .btn-ver-destacada {
   padding: 0.75rem 1.5rem;
-  background: #2563eb;
+  background: #fc7e22;
   color: #ffffff;
   font-weight: 700;
   border-radius: 8px;
@@ -297,7 +297,7 @@ function toggleFav() {
 }
 
 .btn-ver-destacada:hover {
-  background: #1d4ed8;
+  background: #ea6c13;
   transform: translateY(-2px);
 }
 </style>
