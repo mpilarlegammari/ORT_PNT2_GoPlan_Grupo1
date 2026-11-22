@@ -14,15 +14,15 @@
   gap: 48px;
 }
 .auth-page .logo {
-  color: #fff;
-  font-size: 34px;
-  font-weight: 800;
-  letter-spacing: -2px;
+  display: block;
   width: fit-content;
   text-decoration: none;
 }
-.auth-page .logo span {
-  color: #dce9b2;
+.auth-page .logo-imagen-acceso {
+  height: 76px;
+  width: auto;
+  object-fit: contain;
+  display: block;
 }
 .auth-page .mensaje {
   margin: auto 0;

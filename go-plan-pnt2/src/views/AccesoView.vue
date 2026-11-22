@@ -1,8 +1,14 @@
+<script setup>
+import logoBlanco from '@/assets/logo-blanco.svg'
+</script>
+
 <template>
   <div class="auth-page">
     <div class="login-page">
       <aside class="presentacion" aria-label="Bienvenido a GoPlan">
-        <RouterLink class="logo" to="/actividades">GoPlan<span>.</span></RouterLink>
+        <RouterLink class="logo" to="/actividades">
+          <img :src="logoBlanco" alt="GoPlan" class="logo-imagen-acceso" />
+        </RouterLink>
         <div class="mensaje">
           <h2>
             Un nuevo plan.<br /><span>Una nueva<br />versión de vos.</span>

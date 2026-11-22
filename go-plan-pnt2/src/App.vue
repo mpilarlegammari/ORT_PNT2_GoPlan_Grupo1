@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
+import logoColor from '@/assets/logo.svg'
 import { useActividadesStore } from '@/stores/actividades'
 import useAuthStore from '@/stores/authStore'
 import { useAuth } from '@/composables/useAuth'
@@ -32,8 +33,11 @@ const esAdministrador = computed(() => authStore.isAdmin)
     <header v-if="!route.meta.acceso" class="app-header cabecera">
       <div class="header-contenedor">
         <RouterLink to="/actividades" class="logo-link">
-          <span class="logo-marca">GoPlan</span>
-          <span class="logo-punto">.</span>
+          <img
+            :src="logoColor"
+            alt="GoPlan"
+            class="logo-imagen"
+          />
         </RouterLink>
 
         <nav class="nav-links" aria-label="Navegación principal">
@@ -133,14 +137,20 @@ const esAdministrador = computed(() => authStore.isAdmin)
 
 .logo-link {
   text-decoration: none;
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: #0f172a;
-  letter-spacing: -0.5px;
+  display: inline-flex;
+  align-items: center;
 }
 
-.logo-punto {
-  color: #2563eb;
+.logo-imagen {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.logo-imagen:hover {
+  transform: scale(1.03);
 }
 
 .nav-links {
