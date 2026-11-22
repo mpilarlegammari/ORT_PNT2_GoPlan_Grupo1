@@ -5,6 +5,12 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/admin/reservas',
+      name: 'admin-reservas',
+      component: () => import('../views/admin/AdminReservasView.vue'),
+      meta: { requiresAdmin: true },
+    },
+    {
       path: '/admin/actividades/:id/editar',
       name: 'actividad-editar',
       component: () => import('../views/admin/ActividadFormView.vue'),
@@ -63,6 +69,7 @@ const router = createRouter({
     {
       path: '/mis-reservas',
       name: 'mis-reservas',
+      meta: { requiresUser: true },
       component: () => import('../views/usuario/MisReservas.vue'),
     },
     {

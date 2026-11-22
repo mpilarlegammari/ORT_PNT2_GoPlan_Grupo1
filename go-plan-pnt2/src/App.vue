@@ -42,7 +42,8 @@ const esAdministrador = computed(() => authStore.isAdmin)
             Favoritos
             <span v-if="cantidadFavoritos > 0" class="badge-fav">{{ cantidadFavoritos }}</span>
           </RouterLink>
-          <RouterLink to="/mis-reservas">Mis reservas</RouterLink>
+          <RouterLink v-if="usuario?.rol === 'usuario'" to="/mis-reservas">Mis reservas</RouterLink>
+          <RouterLink v-if="esAdministrador" to="/admin/reservas">Administrar reservas</RouterLink>
           <RouterLink to="/perfil">Mi perfil</RouterLink>
 
           <RouterLink v-if="esAdministrador" to="/admin/actividades">

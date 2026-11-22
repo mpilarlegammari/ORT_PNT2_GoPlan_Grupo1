@@ -1,5 +1,10 @@
 # go-plan-pnt2
 
+El administrador dispone de `/admin/reservas` para ver titulares, actividades y
+estados, y cancelar con confirmación. El menú y el panel de administración enlazan
+a esa vista. `/mis-reservas` y el botón Reservar del detalle están reservados al rol
+`usuario`; el backend también comprueba los permisos en cada operación.
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup

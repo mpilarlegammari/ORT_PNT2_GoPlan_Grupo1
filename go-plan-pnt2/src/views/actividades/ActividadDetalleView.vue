@@ -5,9 +5,11 @@ import { obtenerActividadPorIdAPI } from '@/services/actividades'
 import { useRoute, RouterLink } from 'vue-router'
 import { useActividadesStore } from '@/stores/actividades'
 import { crearReserva } from '@/services/reservasApi.js'
+import useAuthStore from '@/stores/authStore.js'
 
 const route = useRoute()
 const store = useActividadesStore()
+const auth = useAuthStore()
 
 const actividad = ref(null)
 const cargando = ref(false)
@@ -75,6 +77,7 @@ const porcentajeOcupacion = computed(() => {
 })
 
 async function reservar() {
+  if (auth.usuario?.rol !== 'usuario') return
   if (reservando.value || reservaConfirmada.value || !actividad.value || disponibles.value === 0) return
   const actual = solicitud
   const id = actividad.value.id
@@ -289,7 +292,7 @@ async function reservar() {
             <!-- Botón de Reserva principal -->
             <div class="acciones-reserva">
               <button
-                v-if="!reservaConfirmada"
+                v-if="auth.usuario?.rol === 'usuario' && !reservaConfirmada"
                 type="button"
                 class="btn-reservar-principal"
                 :disabled="reservando || disponibles === 0"
@@ -299,7 +302,7 @@ async function reservar() {
               </button>
 
               <!-- Mensaje de confirmación cuando se reservó -->
-              <div v-else class="alerta-confirmada" role="status">
+              <div v-else-if="reservaConfirmada" class="alerta-confirmada" role="status">
                 <span class="icono-check">✓</span>
                 <p>
                   Tu reserva está confirmada.
