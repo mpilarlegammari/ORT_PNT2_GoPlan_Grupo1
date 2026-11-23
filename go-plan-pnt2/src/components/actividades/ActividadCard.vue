@@ -3,6 +3,7 @@ import EditarActividadButton from '@/components/actividades/EditarActividadButto
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useActividadesStore } from '@/stores/actividades'
+import useAuthStore from '@/stores/authStore'
 
 const props = defineProps({
   actividad: {
@@ -12,6 +13,7 @@ const props = defineProps({
 })
 
 const store = useActividadesStore()
+const auth = useAuthStore()
 
 const esFav = computed(() => store.esFavorito(props.actividad.id))
 const cuposDisponibles = computed(() =>
@@ -62,6 +64,7 @@ function toggleFav(e) {
       <button
         type="button"
         class="btn-favorito"
+        v-if="!auth.isAdmin"
         :class="{ activo: esFav }"
         :title="esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'"
         :aria-label="esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'"

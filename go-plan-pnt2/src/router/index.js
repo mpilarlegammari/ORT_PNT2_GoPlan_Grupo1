@@ -41,6 +41,7 @@ const router = createRouter({
     {
       path: '/favoritos',
       name: 'favoritos',
+      meta: { requiresUser: true },
       component: () => import('../views/actividades/FavoritosView.vue'),
     },
     {

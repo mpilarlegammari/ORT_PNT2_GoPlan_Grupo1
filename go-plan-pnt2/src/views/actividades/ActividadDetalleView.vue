@@ -169,6 +169,7 @@ async function reservar() {
         <button
           type="button"
           class="btn-favorito-hero"
+          v-if="!auth.isAdmin"
           :class="{ activo: esFav }"
           :title="esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'"
           :aria-label="esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'"

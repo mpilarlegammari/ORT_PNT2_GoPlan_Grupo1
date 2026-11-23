@@ -38,7 +38,7 @@ const esAdministrador = computed(() => authStore.isAdmin)
 
         <nav class="nav-links" aria-label="Navegación principal">
           <RouterLink to="/actividades">Actividades</RouterLink>
-          <RouterLink to="/favoritos" class="link-favoritos">
+          <RouterLink v-if="usuario?.rol === 'usuario'" to="/favoritos" class="link-favoritos">
             Favoritos
             <span v-if="cantidadFavoritos > 0" class="badge-fav">{{ cantidadFavoritos }}</span>
           </RouterLink>
