@@ -43,14 +43,16 @@ const mostrarDestacada = computed(() => {
         Reintentar
       </button>
     </section>
-    <!-- Grilla de Actividades -->
-    <section
+    <!-- Grilla de Actividades con transición fluida -->
+    <TransitionGroup
       v-else-if="actividades.length > 0"
+      name="grilla-anim"
+      tag="section"
       class="grilla-actividades"
       aria-label="Lista de actividades"
     >
       <ActividadCard v-for="actividad in actividades" :key="actividad.id" :actividad="actividad" />
-    </section>
+    </TransitionGroup>
 
     <!-- Estado vacío cuando no hay resultados de búsqueda -->
     <section v-else class="estado-vacio" role="alert">
@@ -104,6 +106,19 @@ const mostrarDestacada = computed(() => {
   gap: 1.5rem;
 }
 
+/* Transiciones animadas al filtrar o buscar */
+.grilla-anim-move,
+.grilla-anim-enter-active,
+.grilla-anim-leave-active {
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.grilla-anim-enter-from,
+.grilla-anim-leave-to {
+  opacity: 0;
+  transform: translateY(12px) scale(0.97);
+}
+
 @media (min-width: 640px) {
   .grilla-actividades {
     grid-template-columns: repeat(2, 1fr);
@@ -145,7 +160,7 @@ const mostrarDestacada = computed(() => {
 
 .btn-restablecer {
   padding: 0.65rem 1.5rem;
-  background: #2563eb;
+  background: #fc7e22;
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -155,6 +170,6 @@ const mostrarDestacada = computed(() => {
 }
 
 .btn-restablecer:hover {
-  background: #1d4ed8;
+  background: #ea6c13;
 }
 </style>
