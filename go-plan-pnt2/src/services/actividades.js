@@ -37,7 +37,12 @@ function resolverCategoria(actividad) {
   if (nombre.includes('foto') || nombre.includes('cámara')) {
     return 'Fotografía'
   }
-  if (nombre.includes('pasta') || nombre.includes('cocina') || nombre.includes('vino') || nombre.includes('cata')) {
+  if (
+    nombre.includes('pasta') ||
+    nombre.includes('cocina') ||
+    nombre.includes('vino') ||
+    nombre.includes('cata')
+  ) {
     return 'Gastronomía'
   }
   if (nombre.includes('cerámica') || nombre.includes('alfarería') || nombre.includes('arte')) {
@@ -125,35 +130,45 @@ export async function obtenerActividadesAPI() {
   return datos.map(adaptarActividad)
 }
 
-export async function obtenerActividadPorIdAPI(id) {
+export async function obtenerActividadPorIdAPI(id, { paraEdicion = false } = {}) {
   const datos = await api(`/actividades/${encodeURIComponent(id)}`)
   if (!datos?._id && !datos?.id) return null
+  const actividad = adaptarActividad(datos)
+  // La edición usa los valores originales, sin las correcciones visuales del catálogo.
+  return paraEdicion
+    ? {
+        ...actividad,
+        descripcion: datos.descripcion || '',
+        categoria: datos.categoria || '',
+        imagen: datos.imagen || '',
+      }
+    : actividad
+}
+
+export async function actualizarActividadAPI(id, cambios, imagen) {
+  const datos = await api(`/actividades/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    ...(imagen
+      ? { body: formularioActividad(cambios, imagen) }
+      : {
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(cambios),
+        }),
+  })
   return adaptarActividad(datos)
 }
 
-export async function actualizarActividadAPI(id, cambios) {
-  const datos = await api(`/actividades/${encodeURIComponent(id)}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(cambios),
-  })
-  return adaptarActividad(datos)
+function formularioActividad(actividad, imagen) {
+  const formulario = new FormData()
+  formulario.append('actividad', JSON.stringify(actividad))
+  if (imagen) formulario.append('imagen', imagen)
+  return formulario
 }
 
 export async function crearActividadAPI(actividad, imagen) {
-  const formulario = new FormData()
-
-  formulario.append('actividad', JSON.stringify(actividad))
-
-  if (imagen) {
-    formulario.append('imagen', imagen)
-  }
-
   const datos = await api('/actividades', {
     method: 'POST',
-    body: formulario,
+    body: formularioActividad(actividad, imagen),
   })
-
   return adaptarActividad(datos)
 }
-
