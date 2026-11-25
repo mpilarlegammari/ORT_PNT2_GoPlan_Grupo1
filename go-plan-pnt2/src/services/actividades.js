@@ -172,21 +172,3 @@ export async function crearActividadAPI(actividad, imagen) {
   })
   return adaptarActividad(datos)
 }
-
-export async function crearActividadAPI(actividad, imagen) {
-  const formulario = new FormData()
-
-  formulario.append('actividad', JSON.stringify(actividad))
-
-  if (imagen) {
-    formulario.append('imagen', imagen)
-  }
-
-  const datos = await api('/actividades', {
-    method: 'POST',
-    body: formulario,
-  })
-
-  return adaptarActividad(datos)
-}
-
