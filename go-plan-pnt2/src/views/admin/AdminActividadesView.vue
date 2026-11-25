@@ -77,45 +77,66 @@ onMounted(cargarActividades)
       <button @click="cargarActividades">Reintentar</button>
     </div>
 
-    <section v-else class="listado">
-      <p v-if="actividades.length === 0" class="mensaje">
-        Todavía no hay actividades registradas.
-      </p>
+    
+<section v-else class="listado">
+  <p v-if="actividades.length === 0" class="mensaje">
+    Todavía no hay actividades registradas.
+  </p>
 
-      <article
-        v-for="actividad in actividades"
-        :key="actividad.id"
-        class="actividad"
-      >
-        <div class="informacion">
-          <h2>{{ actividad.nombre }}</h2>
-          <p>{{ actividad.categoria }} · {{ actividad.ciudad }}</p>
-          <p>Fecha: {{ formatearFecha(actividad.fecha) }}</p>
-          <p>Cupo: {{ actividad.cupo }} · Precio: ${{ actividad.precio }}</p>
-        </div>
+  <div v-else class="tabla-contenedor">
+    <table class="tabla-actividades">
+      <thead>
+        <tr>
+          <th>Actividad</th>
+          <th>Categoría</th>
+          <th>Ciudad</th>
+          <th>Fecha</th>
+          <th>Cupo</th>
+          <th>Precio</th>
+          <th>Estado</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
 
-        <div class="acciones">
-          <span :class="actividad.activa ? 'estado-activo' : 'estado-inactivo'">
-            {{ actividad.activa ? 'Activa' : 'Inactiva' }}
-          </span>
+      <tbody>
+        <tr v-for="actividad in actividades" :key="actividad.id">
+          <td class="nombre-actividad">{{ actividad.nombre }}</td>
+          <td>{{ actividad.categoria }}</td>
+          <td>{{ actividad.ciudad }}</td>
+          <td>{{ formatearFecha(actividad.fecha) }}</td>
+          <td>{{ actividad.cupo }}</td>
+          <td>${{ actividad.precio }}</td>
 
-          <RouterLink
-            :to="{ name: 'actividad-editar', params: { id: actividad.id } }"
-            class="boton-editar"
-          >
-            Editar
-          </RouterLink>
-        </div>
-      </article>
-    </section>
+          <td>
+            <span :class="actividad.activa ? 'estado-activo' : 'estado-inactivo'">
+              {{ actividad.activa ? 'Activa' : 'Inactiva' }}
+            </span>
+          </td>
+
+          <td>
+            <RouterLink
+              :to="{ name: 'actividad-editar', params: { id: actividad.id } }"
+              class="boton-editar"
+            >
+              Editar
+            </RouterLink>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
   </main>
 </template>
 
 <style scoped>
 .admin-actividades {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 30px 20px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 20px 14px;
+  box-sizing: border-box;
 }
 
 .encabezado {
@@ -135,20 +156,37 @@ onMounted(cargarActividades)
   color: #64748b;
 }
 
+
 .resumen {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-  margin-bottom: 28px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
 }
 
-.tarjeta,
-.actividad {
-  padding: 20px;
+.tarjeta {
+  padding: 14px 18px;
   border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border-radius: 8px;
   background: white;
 }
+
+.tarjeta span,
+.tarjeta strong {
+  display: block;
+}
+
+.tarjeta span {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.tarjeta strong {
+  margin-top: 5px;
+  font-size: 22px;
+  font-weight: 500;
+}
+
 
 .tarjeta span,
 .tarjeta strong {
@@ -183,6 +221,53 @@ onMounted(cargarActividades)
   gap: 12px;
 }
 
+.tabla-contenedor {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+}
+
+.tabla-actividades {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.tabla-actividades th,
+.tabla-actividades td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.tabla-actividades th {
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.tabla-actividades td {
+  color: #475569;
+  font-size: 14px;
+}
+
+.tabla-actividades tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabla-actividades tbody tr:hover {
+  background: #f8fafc;
+}
+
+.tabla-actividades .nombre-actividad {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+
 .estado-activo,
 .estado-inactivo {
   padding: 6px 10px;
@@ -200,11 +285,26 @@ onMounted(cargarActividades)
   background: #fee2e2;
 }
 
-.boton-editar,
+.boton-editar {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #334155;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.boton-editar:hover {
+  background: #f1f5f9;
+}
+
 .boton-secundario {
   padding: 9px 14px;
   border-radius: 8px;
-  background: #2563eb;
+  background: #475569;
   color: white;
   text-decoration: none;
 }

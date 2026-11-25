@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
+import logoBlanco from '@/assets/logo-blanco.svg'
 import { useActividadesStore } from '@/stores/actividades'
 import useAuthStore from '@/stores/authStore'
 import { useAuth } from '@/composables/useAuth'
@@ -32,17 +33,21 @@ const esAdministrador = computed(() => authStore.isAdmin)
     <header v-if="!route.meta.acceso" class="app-header cabecera">
       <div class="header-contenedor">
         <RouterLink to="/actividades" class="logo-link">
-          <span class="logo-marca">GoPlan</span>
-          <span class="logo-punto">.</span>
+          <img
+            :src="logoBlanco"
+            alt="GoPlan"
+            class="logo-imagen"
+          />
         </RouterLink>
 
         <nav class="nav-links" aria-label="Navegación principal">
           <RouterLink to="/actividades">Actividades</RouterLink>
-          <RouterLink to="/favoritos" class="link-favoritos">
+          <RouterLink v-if="usuario?.rol === 'usuario'" to="/favoritos" class="link-favoritos">
             Favoritos
             <span v-if="cantidadFavoritos > 0" class="badge-fav">{{ cantidadFavoritos }}</span>
           </RouterLink>
-          <RouterLink to="/mis-reservas">Mis reservas</RouterLink>
+          <RouterLink v-if="usuario?.rol === 'usuario'" to="/mis-reservas">Mis reservas</RouterLink>
+          <RouterLink v-if="esAdministrador" to="/admin/reservas">Administrar reservas</RouterLink>
           <RouterLink to="/perfil">Mi perfil</RouterLink>
 
           <RouterLink v-if="esAdministrador" to="/admin/actividades">
@@ -74,25 +79,39 @@ const esAdministrador = computed(() => authStore.isAdmin)
     <footer v-if="!route.meta.acceso" class="app-footer">
       <p>© 2026 GoPlan — Trabajo Práctico Integrador PNT2 (Grupo 1)</p>
     </footer>
+
+    <!-- Notificación Toast flotante -->
+    <Transition name="toast">
+      <div
+        v-if="actividadesStore.notificacionVisible"
+        class="toast-notificacion"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="toast-icono" aria-hidden="true">❤️</span>
+        <span>{{ actividadesStore.mensajeNotificacion }}</span>
+      </div>
+    </Transition>
   </div>
 </template>
 
 <style scoped>
 .boton-salir {
   padding: 0.5rem 0.85rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
-  background: #fff;
-  color: #475569;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
   font: inherit;
   font-size: 0.9rem;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 .boton-salir:hover {
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.25);
 }
 .boton-salir:focus-visible {
-  outline: 3px solid #2563eb;
+  outline: 3px solid #fc7e22;
   outline-offset: 3px;
 }
 .boton-salir:disabled {
@@ -111,13 +130,45 @@ const esAdministrador = computed(() => authStore.isAdmin)
   flex-direction: column;
 }
 
+.toast-notificacion {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #4b5461;
+  color: #ffffff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast-icono {
+  font-size: 1.15rem;
+}
+
+.toast-enter-active,
+.toast-leave-active {
+  transition: opacity 0.35s ease;
+}
+
+.toast-enter-from,
+.toast-leave-to {
+  opacity: 0;
+}
+
 .app-header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: var(--color-background, #ffffff);
-  border-bottom: 1px solid var(--color-border, #e2e8f0);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: #025e47;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
 }
 
 .header-contenedor {
@@ -133,14 +184,20 @@ const esAdministrador = computed(() => authStore.isAdmin)
 
 .logo-link {
   text-decoration: none;
-  font-size: 1.5rem;
-  font-weight: 900;
-  color: #0f172a;
-  letter-spacing: -0.5px;
+  display: inline-flex;
+  align-items: center;
 }
 
-.logo-punto {
-  color: #2563eb;
+.logo-imagen {
+  height: 58px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.2s ease;
+}
+
+.logo-imagen:hover {
+  transform: scale(1.03);
 }
 
 .nav-links {
@@ -153,7 +210,7 @@ const esAdministrador = computed(() => authStore.isAdmin)
 .nav-links a {
   padding: 0.5rem 0.85rem;
   border-radius: 8px;
-  color: #475569;
+  color: #e2e8f0;
   text-decoration: none;
   font-size: 0.95rem;
   font-weight: 500;
@@ -164,33 +221,35 @@ const esAdministrador = computed(() => authStore.isAdmin)
 }
 
 .nav-links a:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .nav-links a.router-link-active {
-  color: #2563eb;
-  background: #eff6ff;
+  color: #ffffff;
+  background: #fc7e22;
   font-weight: 600;
+  box-shadow: 0 2px 8px rgba(252, 126, 34, 0.35);
 }
 
 .link-acceso {
-  background: #2563eb !important;
+  background: #fc7e22 !important;
   color: #ffffff !important;
   font-weight: 600 !important;
 }
 
 .link-acceso:hover {
-  background: #1d4ed8 !important;
+  background: #ea6c13 !important;
 }
 
 .usuario-logueado {
   font-size: 0.9rem;
-  color: #0f172a;
+  color: #ffffff;
   font-weight: 600;
   padding: 0.5rem 0.75rem;
-  background: #f1f5f9;
+  background: rgba(255, 255, 255, 0.15);
   border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .badge-fav {

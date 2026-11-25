@@ -3,8 +3,10 @@ import EditarActividadButton from '@/components/actividades/EditarActividadButto
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useActividadesStore } from '@/stores/actividades'
+import useAuthStore from '@/stores/authStore'
 
 const store = useActividadesStore()
+const auth = useAuthStore()
 
 const destacada = computed(() => {
   return store.actividadesDestacadas[0] || null
@@ -76,6 +78,7 @@ function toggleFav() {
             <button
               type="button"
               class="btn-fav-banner"
+              v-if="!auth.isAdmin"
               :class="{ activo: esFav }"
               :title="esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'"
               @click="toggleFav"
@@ -285,7 +288,7 @@ function toggleFav() {
 
 .btn-ver-destacada {
   padding: 0.75rem 1.5rem;
-  background: #2563eb;
+  background: #fc7e22;
   color: #ffffff;
   font-weight: 700;
   border-radius: 8px;
@@ -297,7 +300,7 @@ function toggleFav() {
 }
 
 .btn-ver-destacada:hover {
-  background: #1d4ed8;
+  background: #ea6c13;
   transform: translateY(-2px);
 }
 </style>

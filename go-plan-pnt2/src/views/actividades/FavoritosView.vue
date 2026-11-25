@@ -29,9 +29,14 @@ onMounted(() => store.cargarActividades())
       <p>{{ store.error }}</p>
       <button type="button" @click="store.cargarActividades">Reintentar</button>
     </div>
-    <div v-else-if="favoritos.length > 0" class="grilla-favoritos">
+    <TransitionGroup
+      v-else-if="favoritos.length > 0"
+      name="grilla-anim"
+      tag="div"
+      class="grilla-favoritos"
+    >
       <ActividadCard v-for="actividad in favoritos" :key="actividad.id" :actividad="actividad" />
-    </div>
+    </TransitionGroup>
 
     <div v-else class="sin-favoritos">
       <p>Todavía no agregaste actividades a tus favoritos.</p>
@@ -46,8 +51,11 @@ onMounted(() => store.cargarActividades())
   margin: 0 auto;
   padding: 1.5rem 1rem 4rem;
 }
+.favoritos-encabezado {
+  margin-bottom: 2.25rem;
+}
 .breadcrumb a {
-  color: #2563eb;
+  color: #fc7e22;
   text-decoration: none;
   font-weight: 600;
   display: inline-block;
@@ -76,6 +84,18 @@ onMounted(() => store.cargarActividades())
   grid-template-columns: 1fr;
   gap: 1.5rem;
 }
+
+.grilla-anim-move,
+.grilla-anim-enter-active,
+.grilla-anim-leave-active {
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.grilla-anim-enter-from,
+.grilla-anim-leave-to {
+  opacity: 0;
+  transform: translateY(12px) scale(0.97);
+}
 @media (min-width: 640px) {
   .grilla-favoritos {
     grid-template-columns: repeat(2, 1fr);
@@ -96,10 +116,14 @@ onMounted(() => store.cargarActividades())
   display: inline-block;
   margin-top: 1rem;
   padding: 0.65rem 1.25rem;
-  background: #2563eb;
+  background: #fc7e22;
   color: #fff;
   text-decoration: none;
   border-radius: 8px;
   font-weight: 600;
+  transition: background 0.2s ease;
+}
+.btn-explorar:hover {
+  background: #ea6c13;
 }
 </style>

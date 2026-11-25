@@ -95,16 +95,33 @@ export const useActividadesStore = defineStore('actividades', () => {
   }
 
   // Acciones - Favoritos
+  const mensajeNotificacion = ref('')
+  const notificacionVisible = ref(false)
+  let notificacionTimer = null
+
+  function mostrarNotificacion(texto) {
+    mensajeNotificacion.value = texto
+    notificacionVisible.value = true
+    if (notificacionTimer) clearTimeout(notificacionTimer)
+    notificacionTimer = setTimeout(() => {
+      notificacionVisible.value = false
+    }, 2400)
+  }
+
   function esFavorito(id) {
     return favoritosIds.value.includes(id)
   }
 
   function toggleFavorito(id) {
     const idx = favoritosIds.value.indexOf(id)
+    const act = actividades.value.find((a) => a.id === id)
+    const nombre = act?.nombre ? `"${act.nombre}"` : 'Actividad'
     if (idx >= 0) {
       favoritosIds.value.splice(idx, 1)
+      mostrarNotificacion(`${nombre} eliminada de favoritos`)
     } else {
       favoritosIds.value.push(id)
+      mostrarNotificacion(`${nombre} guardada en favoritos`)
     }
     escribirStorage(obtenerClaveFavoritos(), favoritosIds.value)
   }
@@ -112,6 +129,7 @@ export const useActividadesStore = defineStore('actividades', () => {
   function vaciarFavoritos() {
     favoritosIds.value = []
     escribirStorage(obtenerClaveFavoritos(), [])
+    mostrarNotificacion('Lista de favoritos vaciada')
   }
 
   // Acciones - Filtros y Búsqueda
@@ -168,6 +186,8 @@ export const useActividadesStore = defineStore('actividades', () => {
     esFavorito,
     toggleFavorito,
     vaciarFavoritos,
+    mensajeNotificacion,
+    notificacionVisible,
     setBusqueda,
     setCategoria,
     reiniciarFiltros,

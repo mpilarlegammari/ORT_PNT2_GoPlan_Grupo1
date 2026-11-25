@@ -3,6 +3,7 @@ import EditarActividadButton from '@/components/actividades/EditarActividadButto
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useActividadesStore } from '@/stores/actividades'
+import useAuthStore from '@/stores/authStore'
 
 const props = defineProps({
   actividad: {
@@ -12,6 +13,7 @@ const props = defineProps({
 })
 
 const store = useActividadesStore()
+const auth = useAuthStore()
 
 const esFav = computed(() => store.esFavorito(props.actividad.id))
 const cuposDisponibles = computed(() =>
@@ -62,6 +64,7 @@ function toggleFav(e) {
       <button
         type="button"
         class="btn-favorito"
+        v-if="!auth.isAdmin"
         :class="{ activo: esFav }"
         :title="esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'"
         :aria-label="esFav ? 'Quitar de favoritos' : 'Guardar en favoritos'"
@@ -152,7 +155,7 @@ function toggleFav(e) {
 .actividad-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
-  border-color: #3b82f6;
+  border-color: #fc7e22;
 }
 
 .card-imagen-wrapper {
@@ -210,6 +213,10 @@ function toggleFav(e) {
 .btn-favorito:hover {
   transform: scale(1.1);
   background: #ffffff;
+}
+
+.btn-favorito:active {
+  transform: scale(0.9);
 }
 
 .icono-corazon {
@@ -281,7 +288,7 @@ function toggleFav(e) {
 }
 
 .card-titulo a:hover {
-  color: #2563eb;
+  color: #fc7e22;
 }
 
 .card-descripcion {
@@ -332,17 +339,26 @@ function toggleFav(e) {
 
 .btn-detalle {
   padding: 0.55rem 1rem;
-  background: #2563eb;
+  background: #fc7e22;
   color: #ffffff;
   border-radius: 8px;
   font-weight: 600;
   font-size: 0.85rem;
   text-decoration: none;
-  transition: background 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease;
   white-space: nowrap;
 }
 
 .btn-detalle:hover {
-  background: #1d4ed8;
+  background: #ea6c13;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(252, 126, 34, 0.35);
+}
+
+.btn-detalle:active {
+  transform: translateY(0);
 }
 </style>

@@ -115,8 +115,8 @@ function limpiarBusqueda() {
 }
 
 .buscador-input-group:focus-within {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #fc7e22;
+  box-shadow: 0 0 0 3px rgba(252, 126, 34, 0.15);
 }
 
 .icono-lupa {
@@ -181,10 +181,10 @@ function limpiarBusqueda() {
 }
 
 .chip-categoria.activo {
-  background: #2563eb;
+  background: #fc7e22;
   color: #ffffff;
-  border-color: #2563eb;
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  border-color: #fc7e22;
+  box-shadow: 0 2px 6px rgba(252, 126, 34, 0.25);
 }
 
 .meta-resultados {
@@ -201,7 +201,7 @@ function limpiarBusqueda() {
 .btn-resetear {
   background: transparent;
   border: none;
-  color: #2563eb;
+  color: #fc7e22;
   font-size: 0.85rem;
   font-weight: 600;
   text-decoration: underline;
@@ -209,7 +209,7 @@ function limpiarBusqueda() {
 }
 
 .btn-resetear:hover {
-  color: #1d4ed8;
+  color: #ea6c13;
 }
 </style>
 

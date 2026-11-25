@@ -15,6 +15,9 @@ export async function validarAcceso(to) {
   }
 
   if (!auth.isAuthenticated) return { name: 'login', replace: true }
+  if (to.meta.requiresUser && auth.usuario.rol !== 'usuario') {
+    return { name: 'admin-reservas', replace: true }
+  }
   if (to.meta.requiresAdmin && !auth.isAdmin) {
     return { name: 'actividades', replace: true }
   }

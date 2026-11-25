@@ -1,5 +1,13 @@
 import api from './api.js'
 
+export const consultarReservasAdministrativas = () => api('/reservas/admin')
+export const cancelarReservaAdministrativa = (id) =>
+  api(`/reservas/admin/${encodeURIComponent(id)}/cancelar`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: '{}',
+  })
+
 export const consultarReservas = () => api('/reservas')
 export const crearReserva = (actividadId) =>
   api('/reservas', {

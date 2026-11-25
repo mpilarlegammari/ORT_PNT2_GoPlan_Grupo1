@@ -1,5 +1,10 @@
 # go-plan-pnt2
 
+El administrador dispone de `/admin/reservas` para ver titulares, actividades y
+estados, y cancelar con confirmación. El menú y el panel de administración enlazan
+a esa vista. `/mis-reservas` y el botón Reservar del detalle están reservados al rol
+`usuario`; el backend también comprueba los permisos en cada operación.
+
 This template should help get you started developing with Vue 3 in Vite.
 
 ## Recommended IDE Setup
@@ -156,3 +161,19 @@ El `.env` y `.env.local` se usan solo para desarrollo con Vite; no configuran el
 proxy de producción. `npm run check` ejecuta lint, pruebas unitarias y build.
 GitHub Actions también audita las dependencias de producción en cambios a
 `main` y pull requests.
+
+## Formulario de actividades
+
+Crear y editar actividades usan `components/actividades/ActividadFormulario.vue`.
+La edición precarga provincia, ciudad e imagen actual. Se puede adjuntar JPEG, PNG
+o WebP de hasta 5 MB; sin un archivo nuevo se conserva la imagen existente.
+Con foto nueva, PUT /api/actividades/:id envía multipart con los campos `actividad`
+(JSON) e `imagen`. Sin foto, mantiene el envío JSON. El backend debe tener desplegada
+la recepción multipart en PUT; el cambio de frontend por sí solo no habilita esa carga.
+
+La ubicación se elige en cascada: país → provincia/estado → ciudad. Los tres
+listados se consultan en `/api/ubicaciones` del backend configurado (Render por
+defecto). Cambiar el país limpia provincia y ciudad; cambiar la provincia limpia
+la ciudad. Al editar se conserva y precarga la ubicación existente, y se envían
+los códigos y nombres de la nueva selección. Las consultas incluyen carga,
+reintento y protección frente a respuestas tardías de otra selección.

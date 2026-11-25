@@ -12,6 +12,7 @@ const actividadMasReservada = ref(null)
   <main class="admin-dashboard">
     <h1>Panel de administración</h1>
     <p>Bienvenido al panel de administración de GoPlan.</p>
+    <RouterLink to="/admin/reservas">Ver y administrar reservas</RouterLink>
 
     <section class="estadisticas">
       <h2>Estadísticas generales</h2>

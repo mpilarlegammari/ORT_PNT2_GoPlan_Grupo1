@@ -12,6 +12,17 @@ vi.mock('../../services/auth.js', () => ({
   signOut: vi.fn(),
 }))
 let router
+it('impide al administrador entrar a Mis reservas y protege el panel general', async () => {
+  getSession.mockResolvedValue({ usuario: { nombre: 'Admin', rol: 'admin' } })
+  await router.push('/mis-reservas')
+  expect(router.currentRoute.value.name).toBe('admin-reservas')
+  await router.push('/favoritos')
+  expect(router.currentRoute.value.name).toBe('admin-reservas')
+  getSession.mockResolvedValue({ usuario: { nombre: 'Ana', rol: 'usuario' } })
+  await router.push('/actividades')
+  await router.push('/admin/reservas')
+  expect(router.currentRoute.value.name).toBe('actividades')
+})
 beforeEach(() => {
   setActivePinia(createPinia())
   vi.clearAllMocks()
