@@ -1,11 +1,13 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { obtenerActividadesAPI } from '@/services/actividades'
+import { eliminarActividadAPI, obtenerActividadesAPI } from '@/services/actividades'
 
 const actividades = ref([])
 const cargando = ref(false)
 const error = ref('')
+const errorEliminacion = ref('')
+const eliminandoId = ref(null)
 
 async function cargarActividades() {
   cargando.value = true
@@ -27,6 +29,24 @@ function formatearFecha(fecha) {
     dateStyle: 'short',
     timeStyle: 'short',
   })
+}
+
+async function eliminarActividad(actividad) {
+  const confirmado = window.confirm(
+    `La actividad «${actividad.nombre}» se eliminará y sus reservas confirmadas serán canceladas. Esta acción no se puede deshacer. ¿Querés continuar?`,
+  )
+  if (!confirmado || eliminandoId.value !== null) return
+
+  eliminandoId.value = actividad.id
+  errorEliminacion.value = ''
+  try {
+    await eliminarActividadAPI(actividad.id)
+    actividades.value = actividades.value.filter((item) => item.id !== actividad.id)
+  } catch (err) {
+    errorEliminacion.value = err.message || 'No se pudo eliminar la actividad.'
+  } finally {
+    eliminandoId.value = null
+  }
 }
 
 onMounted(cargarActividades)
@@ -69,6 +89,8 @@ onMounted(cargarActividades)
         <strong>{{ actividades.filter(a => !a.activa).length }}</strong>
       </article>
     </div>
+
+    <p v-if="errorEliminacion" class="error" role="alert">{{ errorEliminacion }}</p>
 
     <p v-if="cargando" class="mensaje">Cargando actividades...</p>
 
@@ -120,6 +142,14 @@ onMounted(cargarActividades)
             >
               Editar
             </RouterLink>
+            <button
+              type="button"
+              class="boton-eliminar"
+              :disabled="eliminandoId !== null"
+              @click="eliminarActividad(actividad)"
+            >
+              {{ eliminandoId === actividad.id ? 'Eliminando…' : 'Eliminar' }}
+            </button>
           </td>
         </tr>
       </tbody>
@@ -299,6 +329,27 @@ onMounted(cargarActividades)
 
 .boton-editar:hover {
   background: #f1f5f9;
+}
+
+.boton-eliminar {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 8px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  background: #fff;
+  color: #b91c1c;
+  font: inherit;
+  font-size: 14px;
+}
+
+.boton-eliminar:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.boton-eliminar:disabled {
+  cursor: wait;
+  opacity: 0.65;
 }
 
 .boton-secundario {

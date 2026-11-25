@@ -130,6 +130,10 @@ export async function obtenerActividadesAPI() {
   return datos.map(adaptarActividad)
 }
 
+export async function eliminarActividadAPI(id) {
+  return api(`/actividades/${encodeURIComponent(id)}`, { method: 'DELETE' })
+}
+
 export async function obtenerActividadPorIdAPI(id, { paraEdicion = false } = {}) {
   const datos = await api(`/actividades/${encodeURIComponent(id)}`)
   if (!datos?._id && !datos?.id) return null
